@@ -1,0 +1,118 @@
+service: microservice-streaming
+
+frameworkVersion: "2"
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: "20201221"
+  timeout: 30
+
+plugins:
+  - serverless-dotenv-plugin # Allow set global parameters in env.{enviroment}
+  - serverless-offline
+
+functions:
+  findAllSessions:
+    handler: gatways/routes/session/main.findAllSession
+    events:
+      - http:
+          path: /session/findall
+          method: get
+          cors: true
+  paginationSessions:
+    handler: gatways/routes/session/main.pagination
+    events:
+      - http:
+          path: /session/pagination/{page}
+          method: get
+          cors: true
+          request:
+          parameters:
+            paths:
+              page: true
+  createSession:
+    handler: gatways/routes/session/main.createSession
+    events:
+      - http:
+          path: /session/create
+          method: post
+          cors: true
+  paginationVideo:
+    handler: gatways/routes/video/main.pagination
+    events:
+      - http:
+          path: /video/pagination/{page}/session/{sessionId}
+          method: get
+          cors: true
+          request:
+          parameters:
+            paths:
+              page: true
+              sessionId: true
+  forgotPassword:
+    handler: gatways/routes/subscriber/main.forgotPassword
+    events:
+      - http:
+          path: /subscriber/forgotpassword/document/{document}
+          method: get
+          cors: true
+          request:
+          parameters:
+            paths:
+              document: true
+  updatePassword:
+    handler: gatways/routes/subscriber/main.updatePassword
+    events:
+      - http:
+          path: /subscriber/updatepassword/document/{document}
+          method: post
+          cors: true
+          request:
+          parameters:
+            paths:
+              document: true
+  loginSubscriber:
+    handler: gatways/routes/subscriber/main.login
+    events:
+      - http:
+          path: /subscriber/login
+          method: post
+          cors: true
+  createSubscriber:
+    handler: gatways/routes/subscriber/main.createSubscriber
+    events:
+      - http:
+          path: /subscriber/create
+          method: post
+          cors: true
+  createMeeting:
+    handler: gatways/routes/meeting/main.createMeeting
+    events:
+      - http:
+          path: /meeting/create
+          method: post
+          cors: true
+  findMeetingsOfTheSubscriber:
+    handler: gatways/routes/meeting/main.findMeetingsOfTheSubscriber
+    events:
+      - http:
+          path: /meeting/findall/subscriber/{subscriberId}
+          method: get
+          cors: true
+          request:
+          parameters:
+            paths:
+              subscriberId: true
+  deleteMeeting:
+    handler: gatways/routes/meeting/main.deleteMeeting
+    events:
+      - http:
+          path: /meeting/delete/{meetingId}
+          method: delete
+          cors: true
+          request:
+          parameters:
+            paths:
+              meetingId: true
