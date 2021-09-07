@@ -9,6 +9,7 @@ class IVideo {
     videoUrl,
     videoThumb,
     locked,
+    thoseWhoLiked = [],
   }) {
     this._id = _id;
     this.sessionId = sessionId;
@@ -17,6 +18,7 @@ class IVideo {
     this.videoUrl = videoUrl;
     this.videoThumb = videoThumb;
     this.locked = locked;
+    this.thoseWhoLiked = thoseWhoLiked;
   }
 }
 

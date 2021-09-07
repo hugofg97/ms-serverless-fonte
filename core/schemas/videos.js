@@ -25,6 +25,10 @@ const schema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    thoseWhoLiked: {
+      type: Array,
+      default: [],
+    },
     deletedAt: {
       type: Date,
     },

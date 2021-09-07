@@ -1,19 +1,19 @@
 const { ISessionService } = require("../../interfaces/ISession");
 
 module.exports = class extends ISessionService {
-  async createSession(session, { CreateSession }, serviceLocator) {
+  async create(session, { CreateSession }, serviceLocator) {
     const newSession = await CreateSession(session, serviceLocator);
 
     return newSession;
   }
 
-  async checkSessionExists({ name }, { FindOneSession }, serviceLocator) {
-    const sessionExists = await FindOneSession(name, serviceLocator);
+  async findByName({ name }, { FindByName }, serviceLocator) {
+    const sessionExists = await FindByName(name, serviceLocator);
 
     if (sessionExists) throw 409;
   }
 
-  async findAllSessions({ FindAllSessions, FindAllVideos }, serviceLocator) {
+  async findAll({ FindAllSessions, FindAllVideos }, serviceLocator) {
     const allVideos = await FindAllVideos(serviceLocator);
 
     const allSessions = await FindAllSessions(serviceLocator);
@@ -34,20 +34,17 @@ module.exports = class extends ISessionService {
 
     return showcasePerSession;
   }
-  async paginationSessions(
-    { page },
-    { PaginationSession, FindAllVideos },
-    serviceLocator
-  ) {
+  async pagination({ page }, { Pagination, FindAllVideos }, serviceLocator) {
+    console.log("to inicio");
     const allVideos = await FindAllVideos(serviceLocator);
+    console.log("to meio", allVideos);
 
-    const allSessions = await PaginationSession(page, serviceLocator);
+    const allSessions = await Pagination(page, serviceLocator);
 
     const showcasePerSession = allSessions.map((session) => {
       const videosOfCurrentSession = allVideos.filter((video, index) => {
         return video.sessionId == session._id;
       });
-
       return {
         _id: session._id,
         sessionName: session.name,

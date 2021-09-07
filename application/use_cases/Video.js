@@ -1,7 +1,7 @@
 "use strict";
 
 const { IVideo } = require("../../interfaces/IVideo");
-module.exports.CreateVideo = (
+module.exports.Create = (
   { sessionId, videoName, videoDescription, videoUrl, videoThumb, locked },
   { videoRepository }
 ) => {
@@ -18,12 +18,9 @@ module.exports.CreateVideo = (
   return videoRepository.create(video);
 };
 
-module.exports.PaginationVideo = ({ page, sessionId }, { videoRepository }) => {
+module.exports.Pagination = ({ page, sessionId }, { videoRepository }) => {
   return videoRepository.pagination({ page, sessionId });
 };
-module.exports.FindAllVideos = ({ videoRepository }) => {
-  return videoRepository.getAll();
-};
-module.exports.CreateVideo = (video, { videoRepository }) => {
-  return videoRepository.create(video);
+module.exports.FindAll = ({ videoRepository }) => {
+  return videoRepository.findAll();
 };

@@ -19,7 +19,7 @@ class ISessionRepository {
     throw 500;
   }
 
-  getAll(limit) {
+  findAll(limit) {
     throw 500;
   }
 
@@ -28,25 +28,17 @@ class ISessionRepository {
   }
 }
 class ISessionService {
-  async findAllSessions(
-    event,
-    { FindAllSessions, FindAllVideos },
-    serviceLocator
-  ) {
+  async findAll(event, { FindAllSessions, FindAllVideos }, serviceLocator) {
     throw 500;
   }
-  async paginationSessions(
+  async pagination(
     { page },
     { FindAllSessions, FindAllVideos },
     serviceLocator
   ) {
     throw 500;
   }
-  async crateSession(
-    session,
-    { FindOneSession, CreateSession },
-    serviceLocator
-  ) {
+  async create(session, { FindOneSession, CreateSession }, serviceLocator) {
     throw 500;
   }
 }

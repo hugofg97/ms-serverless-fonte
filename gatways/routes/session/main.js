@@ -7,12 +7,20 @@ module.exports.createSession = async (event, context) => {
   return await sessionController.create({ body, pathParameters });
 };
 module.exports.findAllSession = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await sessionController.findAll({ body, pathParameters });
+  const { body, pathParameters, queryStringParameters } = event;
+  return await sessionController.findAll({
+    body,
+    pathParameters,
+    queryStringParameters,
+  });
 };
 module.exports.pagination = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await sessionController.pagination({ body, pathParameters });
+  const { body, pathParameters, queryStringParameters } = event;
+  return await sessionController.pagination({
+    body,
+    pathParameters,
+    queryStringParameters,
+  });
 };
 module.exports.update = async (event, context) => {
   const { body, pathParameters } = event;

@@ -1,6 +1,7 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const SessionService = require("../services/SessionService");
+const VideoService = require("../services/VideoService");
 const { ISession } = require("../../interfaces/ISession");
 const { methods } = require("../../core/config/consts");
 const { isRequired } = require("../../core/config/libs/validator");
@@ -11,29 +12,31 @@ const {
 } = require("../../core/config/libs/ResponseService");
 
 class SessionController {
+  constructor() {
+    this.service = new SessionService();
+    this.videoService = new VideoService();
+  }
   async create({ body }) {
     try {
       if (!body) throw 400;
 
       const session = new ISession(JSON.parse(body));
 
-      const sessionService = new SessionService();
-
       await isRequired(session.name, 400);
       await isRequired(session.description, 400);
 
-      await sessionService.checkSessionExists(
+      await this.service.findByName(
         session,
         {
-          FindOneSession: useCases.Session.FindOneSession,
+          FindByName: useCases.Session.FindByName,
         },
         serviceLocator
       );
 
-      const result = await sessionService.createSession(
+      const result = await this.service.create(
         session,
         {
-          CreateSession: useCases.Session.CreateSession,
+          Create: useCases.Session.Create,
         },
         serviceLocator
       );
@@ -43,39 +46,57 @@ class SessionController {
       return handleError({ error });
     }
   }
-  async findAll() {
+  async findAll({ queryStringParameters }) {
     try {
-      const sessionService = new SessionService();
-
-      const result = await sessionService.findAllSessions(
+      let result = await this.service.findAll(
         {
-          FindAllSessions: useCases.Session.FindAllSessions,
-          FindAllVideos: useCases.Video.FindAllVideos,
+          FindAllSessions: useCases.Session.FindAll,
+          FindAllVideos: useCases.Video.FindAll,
         },
         serviceLocator
       );
-
+      const { subscriberId } = queryStringParameters;
+      console.log(subscriberId);
+      result = result.map((session) => {
+        session.videos = this.videoService.videosLikedsByUser({
+          videos: session.videos,
+          subscriberId: subscriberId,
+        });
+        return session;
+      });
       return successfullyRead({ data: result });
     } catch (error) {
+      console.log(error);
       return handleError(error);
     }
   }
 
-  async pagination({ pathParameters }) {
+  async pagination({ pathParameters, queryStringParameters }) {
     try {
       await isRequired(pathParameters.page, 400);
-      const sessionService = new SessionService();
 
-      const result = await sessionService.paginationSessions(
+      let result = await this.service.pagination(
         pathParameters,
         {
-          PaginationSession: useCases.Session.PaginationSession,
-          FindAllVideos: useCases.Video.FindAllVideos,
+          Pagination: useCases.Session.Pagination,
+          FindAllVideos: useCases.Video.FindAll,
         },
         serviceLocator
       );
+      const { subscriberId } = queryStringParameters;
+
+      result = result.map((session) => {
+        session.videos = this.videoService.videosLikedsByUser({
+          videos: session.videos,
+          subscriberId: subscriberId,
+        });
+        return session;
+      });
+
+      console.log(result);
       return successfullyRead({ data: result });
     } catch (error) {
+      console.log(error);
       return handleError(error);
     }
   }

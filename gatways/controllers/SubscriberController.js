@@ -19,9 +19,11 @@ const {
 const SubscriberService = require("../services/SubscriberService");
 
 module.exports = class Subscriber {
+  constructor() {
+    this.service = new SubscriberService();
+  }
   async create({ body }) {
     try {
-      const subscriberService = new SubscriberService();
       if (!body) throw 400;
       const { name, lastName, email, password, document, birthDate } =
         JSON.parse(body);
@@ -37,7 +39,7 @@ module.exports = class Subscriber {
 
       const subscriber = new ISubscriber(JSON.parse(body));
 
-      let existsSubscriber = await subscriberService.findByDocument(
+      let existsSubscriber = this.service.findByDocument(
         { document: subscriber.document },
         { FindOneSubscriber: useCaseSubscriber.FindByDocument },
         serviceLocator
@@ -45,7 +47,7 @@ module.exports = class Subscriber {
 
       if (existsSubscriber) throw 409;
 
-      existsSubscriber = await subscriberService.findByEmail(
+      existsSubscriber = this.service.findByEmail(
         { email: subscriber.email },
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
@@ -53,10 +55,10 @@ module.exports = class Subscriber {
 
       if (existsSubscriber) throw 409;
 
-      subscriber.password = await subscriberService.encryptPassword(subscriber);
+      subscriber.password = this.service.encryptPassword(subscriber);
       subscriber.email = subscriber.email.toLowerCase().trim();
 
-      const result = await subscriberService.createSubscriber(
+      const result = this.service.createSubscriber(
         subscriber,
         { CreateSubscriber: useCaseSubscriber.CreateSubscriber },
         serviceLocator
@@ -69,7 +71,7 @@ module.exports = class Subscriber {
 
       delete result.password;
 
-      const token = await subscriberService.generateToken(result);
+      const token = this.service.generateToken(result);
 
       return successfullyCreated({ data: { ...result, token } });
     } catch (error) {
@@ -79,15 +81,13 @@ module.exports = class Subscriber {
   }
   async login({ body }) {
     try {
-      const subscriberService = new SubscriberService();
-
       if (!body) throw 400;
       const { email, password } = JSON.parse(body);
 
       isRequired(email, 400);
       isRequired(password, 400);
 
-      const existsSubscriber = await subscriberService.findByEmail(
+      const existsSubscriber = this.service.findByEmail(
         { email: email },
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
@@ -95,14 +95,14 @@ module.exports = class Subscriber {
 
       if (!existsSubscriber) throw 400;
 
-      const comparePassword = await subscriberService.comparePassword({
+      const comparePassword = this.service.comparePassword({
         payloadPassword: password,
         password: existsSubscriber.password,
       });
 
       if (!comparePassword) throw 400;
       delete existsSubscriber.password;
-      const token = await subscriberService.generateToken(existsSubscriber);
+      const token = this.service.generateToken(existsSubscriber);
 
       return successfullyRead({ data: { ...existsSubscriber, token } });
     } catch (error) {
@@ -111,7 +111,6 @@ module.exports = class Subscriber {
   }
   async forgotPassword({ pathParameters }) {
     try {
-      const subscriberService = new SubscriberService();
       if (!pathParameters) throw 400;
       const { document } = pathParameters;
 
@@ -119,7 +118,7 @@ module.exports = class Subscriber {
 
       await validateDocument(document);
 
-      const subscriber = await subscriberService.findByDocument(
+      const subscriber = this.service.findByDocument(
         { document },
         {
           FindOneSubscriber: useCaseSubscriber.FindByDocument,
@@ -127,7 +126,7 @@ module.exports = class Subscriber {
         serviceLocator
       );
       if (!subscriber) throw 400;
-      // const result = await subscriberService.sendMail(subscriber);
+      // const result = this.service.sendMail(subscriber);
 
       return successfullyRead({ data: { codeSecurity: "BHV45" } });
     } catch (error) {
@@ -136,8 +135,6 @@ module.exports = class Subscriber {
   }
   async updatePassword({ body, pathParameters }) {
     try {
-      const subscriberService = new SubscriberService();
-
       if (!body) throw 400;
       const { document } = pathParameters;
       const { password } = JSON.parse(body);
@@ -147,7 +144,7 @@ module.exports = class Subscriber {
 
       await validateDocument(document);
 
-      const subscriber = await subscriberService.findByDocument(
+      const subscriber = this.service.findByDocument(
         { document },
         {
           FindOneSubscriber: useCaseSubscriber.FindByDocument,
@@ -156,11 +153,11 @@ module.exports = class Subscriber {
       );
       if (!subscriber) throw 400;
 
-      subscriber.password = await subscriberService.encryptPassword({
+      subscriber.password = this.service.encryptPassword({
         password: password,
       });
 
-      const updatedSubscriber = await subscriberService.updatePassword(
+      const updatedSubscriber = this.service.updatePassword(
         subscriber,
         { UpdatePassword: useCaseSubscriber.UpdatePassword },
         serviceLocator

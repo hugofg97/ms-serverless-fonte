@@ -5,8 +5,8 @@ class IMeeting {
     subscriberId,
     date = Date.now(),
     hour = "00:00:00",
-    period,
-    status,
+    period = "dia",
+    status = "pending",
   }) {
     this._id = _id;
     this.type = type;

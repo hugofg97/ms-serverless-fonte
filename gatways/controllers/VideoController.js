@@ -11,17 +11,18 @@ const {
 } = require("../../core/config/libs/ResponseService");
 
 class VideoController {
+  constructor() {
+    this.service = new VideoService();
+  }
   async create({ body }) {
     try {
       if (!body) throw 400;
 
       const video = new IVideo(JSON.parse(body));
 
-      const videoService = new VideoService();
-
       await isRequired(video.name, 400);
 
-      await videoService.checkVideoExists(
+      this.service.checkVideoExists(
         video,
         {
           FindOneSession: useCases.Video.FindOneVideo,
@@ -29,8 +30,8 @@ class VideoController {
         serviceLocator
       );
 
-      const result = await videoService.createVideo(
-        vodep,
+      const result = this.service.create(
+        vodeo,
         {
           CreateVideo: useCases.Video.CreateVideo,
         },
@@ -43,26 +44,87 @@ class VideoController {
     }
   }
 
-  async pagination({ pathParameters }) {
+  async pagination({ pathParameters, queryStringParameters }) {
     try {
       await isRequired(pathParameters.page, 400);
       await isRequired(pathParameters.sessionId, 400);
 
-      const videoService = new VideoService();
-
-      const result = await videoService.paginationVideo(
+      const result = await this.service.pagination(
         pathParameters,
         {
-          PaginationVideo: useCases.Video.PaginationVideo,
+          Pagination: useCases.Video.Pagination,
         },
         serviceLocator
       );
-      return successfullyRead({ data: result });
+      let videos;
+      const { subscriberId } = queryStringParameters;
+
+      videos = this.service.videosLikedsByUser({
+        videos: result,
+        subscriberId: subscriberId,
+      });
+
+      return successfullyRead({ data: videos });
     } catch (error) {
+      console.log(error);
       return handleError(error);
     }
   }
-  async update() {}
+  async like({ pathParameters }) {
+    try {
+      if (!pathParameters) throw 400;
+      const { subscriberId, videoId } = pathParameters;
+      isRequired(subscriberId, 400);
+      isRequired(videoId, 400);
+      const video = await this.service.like(
+        {
+          subscriberId: subscriberId,
+          videoId: videoId,
+        },
+        serviceLocator
+      );
+      return successfullyRead({ data: video });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error });
+    }
+  }
+  async unlike({ pathParameters }) {
+    try {
+      if (!pathParameters) throw 400;
+      const { subscriberId, videoId } = pathParameters;
+      isRequired(subscriberId, 400);
+      isRequired(videoId, 400);
+      const video = await this.service.unlike(
+        {
+          subscriberId: subscriberId,
+          videoId: videoId,
+        },
+        serviceLocator
+      );
+      return successfullyRead({ data: video });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error });
+    }
+  }
+  async findLikedsBySubscriber({ pathParameters }) {
+    try {
+      if (!pathParameters) throw 400;
+      const { subscriberId } = pathParameters;
+      isRequired(subscriberId, 400);
+      const videos = await this.service.findLikedsBySubscriber(
+        {
+          subscriberId: subscriberId,
+        },
+        serviceLocator
+      );
+      return successfullyRead({ data: videos });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error });
+    }
+  }
 }
 
 module.exports = VideoController;

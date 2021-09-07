@@ -24,9 +24,6 @@ const schema = new mongoose.Schema(
 
 const connectDb = mongoose.model("sessionsModel", schema);
 
-const modelKeys = ["name", "description", "locked"];
-
 module.exports = {
-  modelKeys,
   connectDb,
 };

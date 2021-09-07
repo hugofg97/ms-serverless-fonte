@@ -14,7 +14,7 @@ module.exports = class extends ISessionRepository {
     });
     return mongoSession;
   }
-  async getAll(limit = 5) {
+  async findAll(limit = 5) {
     const mongoSessions = await MongoSession.connectDb
       .find({ deletedAt: null })
       .limit(limit);
@@ -26,7 +26,7 @@ module.exports = class extends ISessionRepository {
       );
     });
   }
-  async findOne(name) {
+  async findByName(name) {
     const mongoSession = await MongoSession.connectDb.findOne({
       name: name,
       deletedAt: null,

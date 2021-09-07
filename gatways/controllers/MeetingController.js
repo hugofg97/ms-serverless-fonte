@@ -10,23 +10,22 @@ const {
 } = require("../../core/config/libs/ResponseService");
 
 class MeetingController {
+  constructor() {
+    this.service = new MeetingService();
+  }
   async create({ body }) {
     try {
       if (!body) throw 400;
-      const { type, subscriberId, period, status } = JSON.parse(body);
+      const { type, subscriberId } = JSON.parse(body);
 
       isRequired(type, 400);
       isRequired(subscriberId, 400);
-      isRequired(period, 400);
-      isRequired(status, 400);
 
       if (type != "reiki" && type != "radiestesia") throw 400;
 
       const meeting = new IMeeting(JSON.parse(body));
 
-      const meetingService = new MeetingService();
-
-      await meetingService.checkMeetingExists(
+      this.service.checkMeetingExists(
         meeting,
         {
           FindOneMeetingForTheSubscriber:
@@ -35,7 +34,7 @@ class MeetingController {
         serviceLocator
       );
       const meetingsForTheSubscriber =
-        await meetingService.findMeetingsForTheSubscriber(
+        this.service.findMeetingsForTheSubscriber(
           meeting,
           {
             FindMeetingsOfTheSubscriber:
@@ -44,7 +43,7 @@ class MeetingController {
           serviceLocator
         );
       if (meetingsForTheSubscriber.length >= 2) throw 400;
-      const result = await meetingService.createMeeting(
+      const result = this.service.createMeeting(
         meeting,
         {
           CreateMeeting: useCases.Meeting.CreateMeeting,
@@ -64,10 +63,8 @@ class MeetingController {
       const { subscriberId } = pathParameters;
       isRequired(subscriberId, 400);
 
-      const meetingService = new MeetingService();
-
       const meetingsForTheSubscriber =
-        await meetingService.findMeetingsForTheSubscriber(
+        this.service.findMeetingsForTheSubscriber(
           { subscriberId: subscriberId },
           {
             FindMeetingsOfTheSubscriber:
@@ -87,9 +84,7 @@ class MeetingController {
       const { meetingId } = pathParameters;
       isRequired(meetingId, 400);
 
-      const meetingService = new MeetingService();
-
-      const meetingsForTheSubscriber = await meetingService.deleteMeeting(
+      const meetingsForTheSubscriber = this.service.deleteMeeting(
         { meetingId: meetingId },
         {
           DeleteMeeting: useCases.Meeting.DeleteMeeting,

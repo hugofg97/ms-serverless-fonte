@@ -6,7 +6,7 @@ module.exports = class extends IVideoRepository {
   constructor() {
     super();
   }
-  async getAll() {
+  async findAll() {
     const mongoVideos = await MongoVideo.connectDb.find({ deletedAt: null });
     return mongoVideos.map((mongoVideo) => {
       return new IVideo({
@@ -17,7 +17,50 @@ module.exports = class extends IVideoRepository {
         videoUrl: mongoVideo.videoUrl,
         videoThumb: mongoVideo.videoThumb,
         locked: mongoVideo.locked,
+        thoseWhoLiked: mongoVideo.thoseWhoLiked,
       });
+    });
+  }
+  async findById({ videoId }) {
+    const mongoVideo = await MongoVideo.connectDb.findOne({
+      _id: videoId,
+      deletedAt: null,
+    });
+
+    return new IVideo({
+      _id: mongoVideo._id,
+      sessionId: mongoVideo.sessionId,
+      videoName: mongoVideo.videoName,
+      videoDescription: mongoVideo.videoDescription,
+      videoUrl: mongoVideo.videoUrl,
+      videoThumb: mongoVideo.videoThumb,
+      locked: mongoVideo.locked,
+      thoseWhoLiked: mongoVideo.thoseWhoLiked,
+    });
+  }
+  async liked({ thoseWhoLiked, videoId }) {
+    await MongoVideo.connectDb.updateOne(
+      {
+        _id: videoId,
+        deletedAt: null,
+      },
+      { thoseWhoLiked: thoseWhoLiked }
+    );
+
+    const mongoVideo = await MongoVideo.connectDb.findOne({
+      _id: videoId,
+      deletedAt: null,
+    });
+
+    return new IVideo({
+      _id: mongoVideo._id,
+      sessionId: mongoVideo.sessionId,
+      videoName: mongoVideo.videoName,
+      videoDescription: mongoVideo.videoDescription,
+      videoUrl: mongoVideo.videoUrl,
+      videoThumb: mongoVideo.videoThumb,
+      locked: mongoVideo.locked,
+      thoseWhoLiked: mongoVideo.thoseWhoLiked,
     });
   }
   async pagination({ page, sessionId }) {
@@ -36,6 +79,7 @@ module.exports = class extends IVideoRepository {
         videoUrl: mongoVideo.videoUrl,
         videoThumb: mongoVideo.videoThumb,
         locked: mongoVideo.locked,
+        thoseWhoLiked: mongoVideo.thoseWhoLiked,
       });
     });
   }

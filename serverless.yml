@@ -51,6 +51,41 @@ functions:
             paths:
               page: true
               sessionId: true
+  likeVideo:
+    handler: gatways/routes/video/main.like
+    events:
+      - http:
+          path: /video/like/{videoId}/subscriber/{subscriberId}
+          method: put
+          cors: true
+          request:
+          parameters:
+            paths:
+              videoId: true
+              subscriberId: true
+  unlikeVideo:
+    handler: gatways/routes/video/main.unlike
+    events:
+      - http:
+          path: /video/unlike/{videoId}/subscriber/{subscriberId}
+          method: put
+          cors: true
+          request:
+          parameters:
+            paths:
+              videoId: true
+              subscriberId: true
+  likedBySubscriber:
+    handler: gatways/routes/video/main.likedBySubscriber
+    events:
+      - http:
+          path: /video/liked/{subscriberId}
+          method: put
+          cors: true
+          request:
+          parameters:
+            paths:
+              subscriberId: true
   forgotPassword:
     handler: gatways/routes/subscriber/main.forgotPassword
     events:
@@ -116,3 +151,17 @@ functions:
           parameters:
             paths:
               meetingId: true
+  createTherapy:
+    handler: gatways/routes/therapy/main.create
+    events:
+      - http:
+          path: /therapy/create
+          method: post
+          cors: true
+  findAllTherapy:
+    handler: gatways/routes/therapy/main.findAll
+    events:
+      - http:
+          path: /therapy/findall
+          method: get
+          cors: true
