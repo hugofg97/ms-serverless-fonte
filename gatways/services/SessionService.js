@@ -35,9 +35,7 @@ module.exports = class extends ISessionService {
     return showcasePerSession;
   }
   async pagination({ page }, { Pagination, FindAllVideos }, serviceLocator) {
-    console.log("to inicio");
     const allVideos = await FindAllVideos(serviceLocator);
-    console.log("to meio", allVideos);
 
     const allSessions = await Pagination(page, serviceLocator);
 

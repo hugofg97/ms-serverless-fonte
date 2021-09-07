@@ -56,7 +56,7 @@ class SessionController {
         serviceLocator
       );
       const { subscriberId } = queryStringParameters;
-      console.log(subscriberId);
+
       result = result.map((session) => {
         session.videos = this.videoService.videosLikedsByUser({
           videos: session.videos,

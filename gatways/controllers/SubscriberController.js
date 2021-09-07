@@ -39,7 +39,7 @@ module.exports = class Subscriber {
 
       const subscriber = new ISubscriber(JSON.parse(body));
 
-      let existsSubscriber = this.service.findByDocument(
+      let existsSubscriber = await this.service.findByDocument(
         { document: subscriber.document },
         { FindOneSubscriber: useCaseSubscriber.FindByDocument },
         serviceLocator
@@ -47,7 +47,7 @@ module.exports = class Subscriber {
 
       if (existsSubscriber) throw 409;
 
-      existsSubscriber = this.service.findByEmail(
+      existsSubscriber = await this.service.findByEmail(
         { email: subscriber.email },
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
@@ -55,10 +55,10 @@ module.exports = class Subscriber {
 
       if (existsSubscriber) throw 409;
 
-      subscriber.password = this.service.encryptPassword(subscriber);
+      subscriber.password = await this.service.encryptPassword(subscriber);
       subscriber.email = subscriber.email.toLowerCase().trim();
 
-      const result = this.service.createSubscriber(
+      const result = await this.service.createSubscriber(
         subscriber,
         { CreateSubscriber: useCaseSubscriber.CreateSubscriber },
         serviceLocator
@@ -71,7 +71,7 @@ module.exports = class Subscriber {
 
       delete result.password;
 
-      const token = this.service.generateToken(result);
+      const token = await this.service.generateToken(result);
 
       return successfullyCreated({ data: { ...result, token } });
     } catch (error) {
@@ -87,7 +87,7 @@ module.exports = class Subscriber {
       isRequired(email, 400);
       isRequired(password, 400);
 
-      const existsSubscriber = this.service.findByEmail(
+      const existsSubscriber = await this.service.findByEmail(
         { email: email },
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
@@ -95,14 +95,14 @@ module.exports = class Subscriber {
 
       if (!existsSubscriber) throw 400;
 
-      const comparePassword = this.service.comparePassword({
+      const comparePassword = await this.service.comparePassword({
         payloadPassword: password,
         password: existsSubscriber.password,
       });
 
       if (!comparePassword) throw 400;
       delete existsSubscriber.password;
-      const token = this.service.generateToken(existsSubscriber);
+      const token = await this.service.generateToken(existsSubscriber);
 
       return successfullyRead({ data: { ...existsSubscriber, token } });
     } catch (error) {
@@ -118,7 +118,7 @@ module.exports = class Subscriber {
 
       await validateDocument(document);
 
-      const subscriber = this.service.findByDocument(
+      const subscriber = await this.service.findByDocument(
         { document },
         {
           FindOneSubscriber: useCaseSubscriber.FindByDocument,
@@ -126,7 +126,7 @@ module.exports = class Subscriber {
         serviceLocator
       );
       if (!subscriber) throw 400;
-      // const result = this.service.sendMail(subscriber);
+      // const result = await this.service.sendMail(subscriber);
 
       return successfullyRead({ data: { codeSecurity: "BHV45" } });
     } catch (error) {
@@ -144,7 +144,7 @@ module.exports = class Subscriber {
 
       await validateDocument(document);
 
-      const subscriber = this.service.findByDocument(
+      const subscriber = await this.service.findByDocument(
         { document },
         {
           FindOneSubscriber: useCaseSubscriber.FindByDocument,
@@ -153,11 +153,11 @@ module.exports = class Subscriber {
       );
       if (!subscriber) throw 400;
 
-      subscriber.password = this.service.encryptPassword({
+      subscriber.password = await this.service.encryptPassword({
         password: password,
       });
 
-      const updatedSubscriber = this.service.updatePassword(
+      const updatedSubscriber = await this.service.updatePassword(
         subscriber,
         { UpdatePassword: useCaseSubscriber.UpdatePassword },
         serviceLocator

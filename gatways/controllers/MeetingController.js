@@ -25,7 +25,7 @@ class MeetingController {
 
       const meeting = new IMeeting(JSON.parse(body));
 
-      this.service.checkMeetingExists(
+      await this.service.checkMeetingExists(
         meeting,
         {
           FindOneMeetingForTheSubscriber:
@@ -34,7 +34,7 @@ class MeetingController {
         serviceLocator
       );
       const meetingsForTheSubscriber =
-        this.service.findMeetingsForTheSubscriber(
+        await this.service.findMeetingsForTheSubscriber(
           meeting,
           {
             FindMeetingsOfTheSubscriber:
@@ -43,7 +43,7 @@ class MeetingController {
           serviceLocator
         );
       if (meetingsForTheSubscriber.length >= 2) throw 400;
-      const result = this.service.createMeeting(
+      const result = await this.service.createMeeting(
         meeting,
         {
           CreateMeeting: useCases.Meeting.CreateMeeting,
@@ -64,7 +64,7 @@ class MeetingController {
       isRequired(subscriberId, 400);
 
       const meetingsForTheSubscriber =
-        this.service.findMeetingsForTheSubscriber(
+        await this.service.findMeetingsForTheSubscriber(
           { subscriberId: subscriberId },
           {
             FindMeetingsOfTheSubscriber:
@@ -84,7 +84,7 @@ class MeetingController {
       const { meetingId } = pathParameters;
       isRequired(meetingId, 400);
 
-      const meetingsForTheSubscriber = this.service.deleteMeeting(
+      const meetingsForTheSubscriber = await this.service.deleteMeeting(
         { meetingId: meetingId },
         {
           DeleteMeeting: useCases.Meeting.DeleteMeeting,
