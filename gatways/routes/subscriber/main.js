@@ -20,6 +20,10 @@ module.exports.update = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.update({ body, pathParameters });
 };
+module.exports.findByDocument = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await subscriberController.findByDocument({ body, pathParameters });
+};
 module.exports.forgotPassword = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.forgotPassword({ body, pathParameters });
@@ -32,4 +36,8 @@ module.exports.updatePassword = async (event, context) => {
 module.exports.login = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.login({ body, pathParameters });
+};
+module.exports.countSubscribers = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await subscriberController.countSubscribers({ body, pathParameters });
 };

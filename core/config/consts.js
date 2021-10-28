@@ -17,7 +17,7 @@ module.exports.messageResponse = Object.freeze({
   DELETED: "Registro deletado com sucesso",
   READ_DATA: "Dados listados com sucesso",
   NOT_FOUND: "Registro não encontrado",
-  ALREAD_EXISTS: "Registro ja existe",
+  ALREAD_EXISTS: " já cadastrado",
   INVALID_DATA: "Dados inválidos",
   UNAUTHORIZED: "Não autorizado",
 });
@@ -37,3 +37,8 @@ module.exports.controllersEntitys = Object.freeze({
   SESSION: "SESSION",
   SUBSCRIBER: "SUBSCRIBER",
 });
+module.exports.limit = ({ tag }) => {
+  if (tag.toUpperCase() === "DICAS" || tag.toUpperCase() === "CURIOSIDADES")
+    return 999;
+  return 5;
+};

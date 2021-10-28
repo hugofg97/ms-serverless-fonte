@@ -45,15 +45,14 @@ module.exports = class Subscriber {
         serviceLocator
       );
 
-      if (existsSubscriber) throw 409;
+      if (existsSubscriber) throw { error: 409, field: "Cpf" };
 
       existsSubscriber = await this.service.findByEmail(
         { email: subscriber.email },
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
       );
-
-      if (existsSubscriber) throw 409;
+      if (existsSubscriber) throw { error: 409, field: "Email" };
 
       subscriber.password = await this.service.encryptPassword(subscriber);
       subscriber.email = subscriber.email.toLowerCase().trim();
@@ -75,7 +74,6 @@ module.exports = class Subscriber {
 
       return successfullyCreated({ data: { ...result, token } });
     } catch (error) {
-      console.log(error);
       return handleError({ error: error });
     }
   }
@@ -167,6 +165,69 @@ module.exports = class Subscriber {
     } catch (error) {
       console.log(error);
       return handleError({ error: error });
+    }
+  }
+  async countSubscribers() {
+    try {
+      const subscriber = await this.service.countSubscribers(
+        {
+          CountSubscribers: useCaseSubscriber.CountSubscribers,
+        },
+        serviceLocator
+      );
+
+      return successfullyRead({ data: subscriber });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error: error });
+    }
+  }
+  async findByDocument({ pathParameters }) {
+    try {
+      const { document } = pathParameters;
+      isRequired(document);
+      const existSubscriber = await this.service.findByDocument(
+        { document: document },
+        { FindOneSubscriber: useCaseSubscriber.FindByDocument },
+        serviceLocator
+      );
+      if (!existSubscriber) throw 404;
+      return successfullyRead({ data: existSubscriber });
+    } catch (error) {
+      handleError({ error: error });
+    }
+  }
+  async update({ body, pathParameters }) {
+    try {
+      if (!body) throw 400;
+      const { name, lastName, birthDate } = JSON.parse(body);
+
+      isRequired(name, 400);
+      isRequired(lastName, 400);
+      isRequired(birthDate, 400);
+
+      const { document } = pathParameters;
+
+      isRequired(document);
+      validateDocument(document);
+      const subscriber = { ...JSON.parse(body), document: document };
+
+      const existSubscriber = await this.service.findByDocument(
+        { document: document },
+        { FindOneSubscriber: useCaseSubscriber.FindByDocument },
+        serviceLocator
+      );
+      console.log(existSubscriber);
+      if (!existSubscriber) throw 404;
+      const result = await this.service.updateSubscriber(
+        subscriber,
+        { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
+        serviceLocator
+      );
+
+      return successfullyRead({ data: result });
+    } catch (error) {
+      handleError({ error: error });
     }
   }
 };

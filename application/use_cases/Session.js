@@ -1,17 +1,14 @@
-module.exports.Create = (
-  { name, description, locked },
-  { sessionRepository }
-) => {
-  return sessionRepository.create({ name, description, locked });
+module.exports.Create = ({ name, description, tag }, { sessionRepository }) => {
+  return sessionRepository.create({ name, description, tag });
 };
 
-module.exports.FindAll = ({ sessionRepository }) => {
-  return sessionRepository.findAll();
+module.exports.FindAll = (query, { sessionRepository }) => {
+  return sessionRepository.findAll(query);
 };
 module.exports.FindByName = (name, { sessionRepository }) => {
   return sessionRepository.findByName(name);
 };
 
-module.exports.Pagination = (page, { sessionRepository }) => {
-  return sessionRepository.pagination(page);
+module.exports.Pagination = (query, { sessionRepository }) => {
+  return sessionRepository.pagination(query);
 };

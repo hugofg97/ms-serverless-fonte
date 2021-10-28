@@ -18,9 +18,18 @@ module.exports.Create = (
   return videoRepository.create(video);
 };
 
-module.exports.Pagination = ({ page, sessionId }, { videoRepository }) => {
-  return videoRepository.pagination({ page, sessionId });
+module.exports.Pagination = (
+  { page, sessionId, limit },
+  { videoRepository }
+) => {
+  return videoRepository.pagination({ page, sessionId, limit });
 };
 module.exports.FindAll = ({ videoRepository }) => {
   return videoRepository.findAll();
+};
+module.exports.FindByName = (videoName, { videoRepository }) => {
+  return videoRepository.findByName(videoName);
+};
+module.exports.RankedVideos = ({ videoRepository }) => {
+  return videoRepository.rankedVideos();
 };

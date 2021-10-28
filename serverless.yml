@@ -8,35 +8,55 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: "20201221"
   timeout: 30
+  region: sa-east-1
 
 plugins:
   - serverless-dotenv-plugin # Allow set global parameters in env.{enviroment}
   - serverless-offline
 
 functions:
+  createSession:
+    handler: gatways/routes/session/main.create
+    events:
+      - http:
+          path: /session/create
+          method: post
+          cors: true
   findAllSessions:
     handler: gatways/routes/session/main.findAllSession
     events:
       - http:
-          path: /session/findall
+          path: /session/{tag}/findall
           method: get
           cors: true
+          request:
+          parameters:
+            paths:
+              tag: true
   paginationSessions:
     handler: gatways/routes/session/main.pagination
     events:
       - http:
-          path: /session/pagination/{page}
+          path: /session/pagination/{tag}/{page}
           method: get
           cors: true
           request:
           parameters:
             paths:
               page: true
-  createSession:
-    handler: gatways/routes/session/main.createSession
+              tag: true
+  findAllTags:
+    handler: gatways/routes/session/main.findAllTags
     events:
       - http:
-          path: /session/create
+          path: /session/tags
+          method: get
+          cors: true
+  createVideo:
+    handler: gatways/routes/video/main.create
+    events:
+      - http:
+          path: /video/create
           method: post
           cors: true
   paginationVideo:
@@ -80,12 +100,19 @@ functions:
     events:
       - http:
           path: /video/liked/{subscriberId}
-          method: put
+          method: get
           cors: true
           request:
           parameters:
             paths:
               subscriberId: true
+  findBestRankVideos:
+    handler: gatways/routes/video/main.findBestRankVideos
+    events:
+      - http:
+          path: /video/bestranking
+          method: get
+          cors: true
   forgotPassword:
     handler: gatways/routes/subscriber/main.forgotPassword
     events:
@@ -114,6 +141,27 @@ functions:
       - http:
           path: /subscriber/login
           method: post
+          cors: true
+  findSubscriberByDocument:
+    handler: gatways/routes/subscriber/main.findByDocument
+    events:
+      - http:
+          path: /subscriber/find/{document}
+          method: get
+          cors: true
+  updateSubscriber:
+    handler: gatways/routes/subscriber/main.update
+    events:
+      - http:
+          path: /subscriber/update/{document}
+          method: put
+          cors: true
+  countSubscribers:
+    handler: gatways/routes/subscriber/main.countSubscribers
+    events:
+      - http:
+          path: /subscriber/count
+          method: get
           cors: true
   createSubscriber:
     handler: gatways/routes/subscriber/main.createSubscriber
@@ -163,5 +211,19 @@ functions:
     events:
       - http:
           path: /therapy/findall
+          method: get
+          cors: true
+  support:
+    handler: gatways/routes/profile/main.support
+    events:
+      - http:
+          path: /app/support
+          method: get
+          cors: true
+  privacity:
+    handler: gatways/routes/profile/main.privacity
+    events:
+      - http:
+          path: /app/privacity
           method: get
           cors: true

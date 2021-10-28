@@ -1,24 +1,31 @@
 const { IVideoService } = require("../../interfaces/IVideo");
 
 module.exports = class extends IVideoService {
-  async create(session, { CreateSession }, serviceLocator) {
-    const newSession = await CreateSession(session, serviceLocator);
+  async create(video, { Create }, serviceLocator) {
+    const newVideo = await Create(video, serviceLocator);
 
-    return newSession;
+    return newVideo;
   }
 
-  async checkSessionExists({ name }, { FindOneSession }, serviceLocator) {
-    const sessionExists = await FindOneSession(name, serviceLocator);
+  async findByName({ videoName }, { FindByName }, serviceLocator) {
+    const videoExists = await FindByName(videoName, serviceLocator);
 
-    if (sessionExists) throw 409;
+    if (videoExists) throw 409;
   }
 
   async pagination({ page, sessionId }, { Pagination }, serviceLocator) {
-    const allVideos = await Pagination({ page, sessionId }, serviceLocator);
-
+    return await Pagination({ page, sessionId }, serviceLocator);
+  }
+  async findBestRanking({ subscriberId }, { RankedVideos }, serviceLocator) {
+    let allVideos = await RankedVideos(serviceLocator);
+    allVideos = this.isLikedBySubscriber({
+      videos: allVideos,
+      subscriberId: subscriberId,
+    });
+    
     return allVideos;
   }
-  videosLikedsByUser({ videos, subscriberId }) {
+  isLikedBySubscriber({ videos, subscriberId }) {
     return videos.map((video) => {
       if (subscriberId)
         video.liked =

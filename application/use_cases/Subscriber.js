@@ -11,6 +11,18 @@ module.exports.CreateSubscriber = (
     password,
   });
 };
+module.exports.UpdateSubscriber = (
+  { name, lastName, document, birthDate, password },
+  { subscriberRepository }
+) => {
+  return subscriberRepository.update({
+    name,
+    lastName,
+    document,
+    birthDate,
+    password,
+  });
+};
 module.exports.FindByDocument = ({ document }, { subscriberRepository }) => {
   return subscriberRepository.findByDocument({ document });
 };
@@ -22,4 +34,7 @@ module.exports.UpdatePassword = (
   { subscriberRepository }
 ) => {
   return subscriberRepository.updatePassword({ document, password });
+};
+module.exports.CountSubscribers = ({ subscriberRepository }) => {
+  return subscriberRepository.count();
 };

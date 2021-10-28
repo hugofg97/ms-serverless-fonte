@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const videoController = new VideoController();
 
-module.exports.createVideo = async (event, context) => {
+module.exports.create = async (event, context) => {
   const { body, pathParameters } = event;
   return await videoController.create({ body, pathParameters });
 };
@@ -34,4 +34,8 @@ module.exports.update = async (event, context) => {
 module.exports.likedBySubscriber = async (event, context) => {
   const { body, pathParameters } = event;
   return await videoController.findLikedsBySubscriber({ body, pathParameters });
+};
+module.exports.findBestRankVideos = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await videoController.findBestRanking({ body, pathParameters });
 };

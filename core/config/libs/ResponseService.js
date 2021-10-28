@@ -19,15 +19,17 @@ const successfullyRead = async ({ data }) => {
   };
 };
 const handleError = async ({ error }) => {
-  if (
-    typeof status == "number" &&
-    Object.entries(statusCode).filter(([_, value]) => status == value)
-  )
-    return internalServerError(error);
-
+  console.log(error);
+  let field;
+  if (error?.field !== null && error?.field !== undefined) {
+    console.log("entrou");
+    field = error.field;
+    error = error.error;
+  }
+  console.log(error);
   switch (error) {
     case statusCode.ALREAD_EXISTS:
-      return alreadExists();
+      return alreadExists({ field: field });
 
     case statusCode.NOT_FOUND:
       return notFound();
@@ -48,10 +50,10 @@ const internalServerError = async (error) => {
     body: JSON.stringify({ message: error }),
   };
 };
-const alreadExists = async () => {
+const alreadExists = async ({ field }) => {
   return {
     statusCode: statusCode.ALREAD_EXISTS,
-    body: JSON.stringify({ message: messageResponse.ALREAD_EXISTS }),
+    body: JSON.stringify({ message: field + messageResponse.ALREAD_EXISTS }),
   };
 };
 const notFound = async () => {

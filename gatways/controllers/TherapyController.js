@@ -48,17 +48,25 @@ class TherapyController {
       return handleError({ error });
     }
   }
-  async findAll({ pathParameters }) {
+  async findAll({ queryStringParameters }) {
     try {
-      if (!pathParameters) throw 400;
+      console.log("aaaa", queryStringParameters);
 
-      const { subscriberId } = pathParameters;
-      isRequired(subscriberId, 400);
+      const subscriberId = queryStringParameters?.subscriberId ?? "";
 
       const { FindAll } = useCases.Therapy;
       const result = await this.service.findAll({ FindAll }, serviceLocator);
 
-      return successfullyRead({ data: result });
+      const therapy = await this.service.checkMeetingInTherapy(
+        {
+          FindAll: useCases.Meeting.FindMeetingsOfTheSubscriber,
+          subscriberId: subscriberId,
+          therapys: result,
+        },
+        serviceLocator
+      );
+
+      return successfullyRead({ data: therapy });
     } catch (error) {
       console.log(error);
       return handleError({ error });

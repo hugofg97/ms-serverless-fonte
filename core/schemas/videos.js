@@ -21,6 +21,10 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    videoThumb: {
+      type: String,
+      required: true,
+    },
     locked: {
       type: Boolean,
       required: true,

@@ -1,9 +1,7 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const SessionService = require("../services/SessionService");
-const VideoService = require("../services/VideoService");
 const { ISession } = require("../../interfaces/ISession");
-const { methods } = require("../../core/config/consts");
 const { isRequired } = require("../../core/config/libs/validator");
 const {
   handleError,
@@ -14,7 +12,6 @@ const {
 class SessionController {
   constructor() {
     this.service = new SessionService();
-    this.videoService = new VideoService();
   }
   async create({ body }) {
     try {
@@ -22,8 +19,9 @@ class SessionController {
 
       const session = new ISession(JSON.parse(body));
 
-      await isRequired(session.name, 400);
-      await isRequired(session.description, 400);
+      isRequired(session.name, 400);
+      isRequired(session.description, 400);
+      isRequired(session.tag, 400);
 
       await this.service.findByName(
         session,
@@ -43,28 +41,42 @@ class SessionController {
 
       return successfullyCreated({ data: result });
     } catch (error) {
+      console.log(error);
       return handleError({ error });
     }
   }
-  async findAll({ queryStringParameters }) {
+  async findAll({ pathParameters, queryStringParameters }) {
     try {
-      let result = await this.service.findAll(
+      if (!pathParameters) throw 400;
+      const { tag } = pathParameters;
+      const subscriberId = queryStringParameters?.subscriberId ?? "";
+      const limit = queryStringParameters?.limit ?? 5;
+
+      isRequired(tag, 400);
+
+      const result = await this.service.findAll(
+        {
+          limit: limit,
+          tag: tag,
+          subscriberId: subscriberId,
+        },
         {
           FindAllSessions: useCases.Session.FindAll,
-          FindAllVideos: useCases.Video.FindAll,
+          PaginationVideo: useCases.Video.Pagination,
         },
         serviceLocator
       );
-      const { subscriberId } = queryStringParameters;
 
-      result = result.map((session) => {
-        session.videos = this.videoService.videosLikedsByUser({
-          videos: session.videos,
-          subscriberId: subscriberId,
-        });
-        return session;
-      });
       return successfullyRead({ data: result });
+    } catch (error) {
+      console.log(error);
+      return handleError(error);
+    }
+  }
+  async findAllTags() {
+    try {
+      const tags = this.service.findAllTags();
+      return successfullyRead({ data: tags });
     } catch (error) {
       console.log(error);
       return handleError(error);
@@ -73,27 +85,22 @@ class SessionController {
 
   async pagination({ pathParameters, queryStringParameters }) {
     try {
-      await isRequired(pathParameters.page, 400);
+      const { tag, page } = pathParameters;
 
-      let result = await this.service.pagination(
-        pathParameters,
+      await isRequired(page, 400);
+      await isRequired(tag, 400);
+
+      const subscriberId = queryStringParameters?.subscriberId ?? "";
+
+      const result = await this.service.pagination(
+        { page: page, tag: tag, subscriberId: subscriberId },
         {
           Pagination: useCases.Session.Pagination,
-          FindAllVideos: useCases.Video.FindAll,
+          PaginationVideo: useCases.Video.Pagination,
         },
         serviceLocator
       );
-      const { subscriberId } = queryStringParameters;
 
-      result = result.map((session) => {
-        session.videos = this.videoService.videosLikedsByUser({
-          videos: session.videos,
-          subscriberId: subscriberId,
-        });
-        return session;
-      });
-
-      console.log(result);
       return successfullyRead({ data: result });
     } catch (error) {
       console.log(error);

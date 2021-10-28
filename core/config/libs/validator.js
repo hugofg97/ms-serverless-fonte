@@ -7,6 +7,11 @@ module.exports = {
   isRequired(value, error) {
     if (!value) throw error;
   },
+  fildExists(value, defaultValue) {
+    if (!value && value == null) return defaultValue;
+    return value;
+  },
+
   validateDocument: (document) => {
     var numbers, digit, soma, i, result, digitEqual;
     digitEqual = 1;

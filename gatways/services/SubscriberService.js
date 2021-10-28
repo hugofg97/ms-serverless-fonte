@@ -43,6 +43,17 @@ module.exports = class extends ISubscriberService {
     const newSubscriber = await CreateSubscriber(subscriber, serviceLocator);
     return newSubscriber;
   }
+  async updateSubscriber(subscriber, { UpdateSubscriber }, serviceLocator) {
+    const updatedSubscriber = await UpdateSubscriber(
+      subscriber,
+      serviceLocator
+    );
+    return updatedSubscriber;
+  }
+  async countSubscribers({ CountSubscribers }, serviceLocator) {
+    const count = await CountSubscribers(serviceLocator);
+    return count;
+  }
 
   async sendMail({ email }) {
     const transporter = nodemailer.createTransport({

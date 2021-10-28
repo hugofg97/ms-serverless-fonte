@@ -1,9 +1,9 @@
 class ISession {
-  constructor({ _id = null, name, description, locked }) {
+  constructor({ _id = null, name, description, tag }) {
     this._id = _id;
     this.name = name;
     this.description = description;
-    this.locked = locked;
+    this.tag = tag;
   }
 }
 class ISessionRepository {
@@ -28,6 +28,7 @@ class ISessionRepository {
   }
 }
 class ISessionService {
+  constructor() {}
   async findAll(event, { FindAllSessions, FindAllVideos }, serviceLocator) {
     throw 500;
   }

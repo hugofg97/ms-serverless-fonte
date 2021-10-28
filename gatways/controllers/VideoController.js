@@ -2,8 +2,7 @@ const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const VideoService = require("../services/VideoService");
 const { IVideo } = require("../../interfaces/IVideo");
-const { methods } = require("../../core/config/consts");
-const { isRequired } = require("../../core/config/libs/validator");
+const { isRequired, fildExists } = require("../../core/config/libs/validator");
 const {
   handleError,
   successfullyCreated,
@@ -20,20 +19,25 @@ class VideoController {
 
       const video = new IVideo(JSON.parse(body));
 
-      await isRequired(video.name, 400);
+      await isRequired(video.videoName, 400);
+      await isRequired(video.videoDescription, 400);
+      await isRequired(video.videoThumb, 400);
+      await isRequired(video.videoUrl, 400);
+      // await isRequired(video.locked, 400);
+      await isRequired(video.sessionId, 400);
 
-      this.service.checkVideoExists(
+      this.service.findByName(
         video,
         {
-          FindOneSession: useCases.Video.FindOneVideo,
+          FindByName: useCases.Video.FindByName,
         },
         serviceLocator
       );
 
       const result = this.service.create(
-        vodeo,
+        video,
         {
-          CreateVideo: useCases.Video.CreateVideo,
+          Create: useCases.Video.Create,
         },
         serviceLocator
       );
@@ -48,6 +52,7 @@ class VideoController {
     try {
       await isRequired(pathParameters.page, 400);
       await isRequired(pathParameters.sessionId, 400);
+      const subscriberId = queryStringParameters?.subscriberId ?? "";
 
       const result = await this.service.pagination(
         pathParameters,
@@ -56,10 +61,8 @@ class VideoController {
         },
         serviceLocator
       );
-      let videos;
-      const { subscriberId } = queryStringParameters;
 
-      videos = this.service.videosLikedsByUser({
+      const videos = this.service.isLikedBySubscriber({
         videos: result,
         subscriberId: subscriberId,
       });
@@ -120,6 +123,23 @@ class VideoController {
         serviceLocator
       );
       return successfullyRead({ data: videos });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error });
+    }
+  }
+  async findBestRanking({ queryStringParameters }) {
+    try {
+      const subscriberId = queryStringParameters?.subscriberId ?? "";
+      console.log("passou");
+      const rankedVideos = await this.service.findBestRanking(
+        { subscriberId: subscriberId },
+        {
+          RankedVideos: useCases.Video.RankedVideos,
+        },
+        serviceLocator
+      );
+      return successfullyRead({ data: rankedVideos });
     } catch (error) {
       console.log(error);
       return handleError({ error });

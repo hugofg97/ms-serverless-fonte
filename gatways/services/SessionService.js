@@ -1,8 +1,10 @@
 const { ISessionService } = require("../../interfaces/ISession");
+const VideoService = require("../services/VideoService");
 
 module.exports = class extends ISessionService {
-  async create(session, { CreateSession }, serviceLocator) {
-    const newSession = await CreateSession(session, serviceLocator);
+  async create(session, { Create }, serviceLocator) {
+    console.log("create - > ", session);
+    const newSession = await Create(session, serviceLocator);
 
     return newSession;
   }
@@ -13,44 +15,70 @@ module.exports = class extends ISessionService {
     if (sessionExists) throw 409;
   }
 
-  async findAll({ FindAllSessions, FindAllVideos }, serviceLocator) {
-    const allVideos = await FindAllVideos(serviceLocator);
+  async findAll(
+    { limit, tag, subscriberId },
+    { FindAllSessions, PaginationVideo },
+    serviceLocator
+  ) {
+    const allSessions = await FindAllSessions(
+      { limit: limit, tag: tag },
+      serviceLocator
+    );
 
-    const allSessions = await FindAllSessions(serviceLocator);
-
-    const showcasePerSession = allSessions.map((session) => {
-      const videosOfCurrentSession = allVideos.filter((video, index) => {
-        return video.sessionId == session._id;
-      });
-
-      return {
-        _id: session._id,
-        sessionName: session.name,
-        description: session.description,
-        locked: session.locked,
-        videos: videosOfCurrentSession.slice(0, 5),
-      };
+    await this.#videosPerSession({
+      allSessions,
+      limit,
+      subscriberId,
+      PaginationVideo,
+      serviceLocator,
     });
-
-    return showcasePerSession;
+    return allSessions;
   }
-  async pagination({ page }, { Pagination, FindAllVideos }, serviceLocator) {
-    const allVideos = await FindAllVideos(serviceLocator);
 
-    const allSessions = await Pagination(page, serviceLocator);
+  async pagination(
+    { limit, tag, page, subscriberId },
+    { Pagination, PaginationVideo },
+    serviceLocator
+  ) {
+    const allSessions = await Pagination(
+      { page: page, tag: tag },
+      serviceLocator
+    );
 
-    const showcasePerSession = allSessions.map((session) => {
-      const videosOfCurrentSession = allVideos.filter((video, index) => {
-        return video.sessionId == session._id;
-      });
-      return {
-        _id: session._id,
-        sessionName: session.name,
-        description: session.description,
-        videos: videosOfCurrentSession.slice(0, 5),
-      };
+    await this.#videosPerSession({
+      allSessions,
+      subscriberId,
+      PaginationVideo,
+      serviceLocator,
     });
 
-    return showcasePerSession;
+    return allSessions;
+  }
+  async #videosPerSession({
+    limit,
+    allSessions,
+    subscriberId,
+    PaginationVideo,
+    serviceLocator,
+  }) {
+    const videoService = new VideoService();
+
+    for await (const [index, value] of Object.entries(allSessions)) {
+      const videos = await PaginationVideo(
+        {
+          page: 1,
+          sessionId: value._id,
+          limit: limit,
+        },
+        serviceLocator
+      );
+      allSessions[index].videos = videoService.isLikedBySubscriber({
+        subscriberId: subscriberId,
+        videos: videos,
+      });
+    }
+  }
+  findAllTags() {
+    return ["REIKI", "DICAS", "MEDITACAO", "CURIOSIDADES", "HOME"];
   }
 };

@@ -11,8 +11,9 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    locked: {
-      type: Boolean,
+
+    tag: {
+      type: String,
       required: true,
     },
     deletedAt: {
