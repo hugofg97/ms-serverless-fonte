@@ -23,6 +23,14 @@ module.exports.UpdateSubscriber = (
     password,
   });
 };
+module.exports.SetProfileImage = (
+  { document, profileImage },
+  { subscriberRepository }
+) => {
+  return subscriberRepository.setProfileImage({
+    profileImage, document
+  });
+};
 module.exports.FindByDocument = ({ document }, { subscriberRepository }) => {
   return subscriberRepository.findByDocument({ document });
 };

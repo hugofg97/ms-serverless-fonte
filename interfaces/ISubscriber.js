@@ -8,6 +8,7 @@ class ISubscriber {
     document,
     birthDate,
     password,
+    profileImage = null,
   }) {
     this._id = _id;
     this.name = name;
@@ -16,6 +17,7 @@ class ISubscriber {
     this.document = document;
     this.birthDate = birthDate;
     this.password = password;
+    this.profileImage = profileImage;
   }
 }
 

@@ -19,14 +19,11 @@ const successfullyRead = async ({ data }) => {
   };
 };
 const handleError = async ({ error }) => {
-  console.log(error);
   let field;
   if (error?.field !== null && error?.field !== undefined) {
-    console.log("entrou");
     field = error.field;
     error = error.error;
   }
-  console.log(error);
   switch (error) {
     case statusCode.ALREAD_EXISTS:
       return alreadExists({ field: field });

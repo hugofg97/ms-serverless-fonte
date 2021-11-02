@@ -24,6 +24,7 @@ module.exports = class extends ISubscriberRepository {
       lastName: newUser.lastName,
       document: newUser.document,
       birthDate: newUser.birthDate,
+      profileImage: null,
       password: "removed",
     });
   }
@@ -46,16 +47,37 @@ module.exports = class extends ISubscriberRepository {
       lastName: subscriber.lastName,
       document: subscriber.document,
       birthDate: subscriber.birthDate,
+      profileImage: newUser?.profileImage ?? null,
+      password: "removed",
+    });
+  }
+  async setProfileImage({  document, profileImage }) {
+    const updated = await MongoSubscriber.connectDb.updateOne(
+      { document: document },
+      {
+        profileImage: profileImage,
+      }
+    );
+    const subscriber = await MongoSubscriber.connectDb.findOne({
+      document: document,
+    });
+    return new ISubscriber({
+      _id: subscriber._id,
+      name: subscriber.name,
+      email: subscriber.email,
+      lastName: subscriber.lastName,
+      document: subscriber.document,
+      birthDate: subscriber.birthDate,
+      profileImage: subscriber?.profileImage ?? null,
       password: "removed",
     });
   }
 
   async findByDocument({ document }) {
-    console.log(document);
     const subscriber = await MongoSubscriber.connectDb.findOne({
       document: document,
     });
-
+    console.log(subscriber)
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -64,6 +86,7 @@ module.exports = class extends ISubscriberRepository {
         lastName: subscriber.lastName,
         document: subscriber.document,
         birthDate: subscriber.birthDate,
+        profileImage: subscriber?.profileImage ?? null,
         password: "removed",
       });
     else return false;
@@ -79,6 +102,7 @@ module.exports = class extends ISubscriberRepository {
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
+        profileImage: subscriber?.profileImage ?? null,
         name: subscriber.name,
         email: subscriber.email,
         lastName: subscriber.lastName,

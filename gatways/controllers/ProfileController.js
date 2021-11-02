@@ -1,18 +1,17 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
-const SessionService = require("../services/SessionService");
-const VideoService = require("../services/VideoService");
-const { isRequired, fildExists } = require("../../core/config/libs/validator");
+const SubscriberService = require("../services/SubscriberService");
+const AWS = require('aws-sdk');
+const { Buffer } = require('buffer');
+const { isRequired, validateDocument } = require("../../core/config/libs/validator");
 const {
   handleError,
-  successfullyCreated,
   successfullyRead,
 } = require("../../core/config/libs/ResponseService");
 
 class ProfileController {
   constructor() {
-    this.service = new SessionService();
-    this.videoService = new VideoService();
+    this.service = new SubscriberService();
   }
 
   async privacity() {
@@ -21,6 +20,50 @@ class ProfileController {
       return successfullyRead({ data: privacity });
     } catch (error) {
       console.log(error);
+      return handleError(error);
+    }
+  }
+  async profileImage({ body, pathParameters }) {
+    try {
+      const { document } = pathParameters;
+      const { image } = JSON.parse(body);
+      
+      isRequired(document);
+      isRequired(image);
+      validateDocument(document);
+
+      const documentExists = await this.service.findByDocument({ document: document }, { FindOneSubscriber: useCases.Subscriber.FindByDocument }, serviceLocator);
+      if (!documentExists) throw 400;
+
+      const base64Image = image.split(';base64,').pop();
+      const bufferImg = Buffer.from(base64Image, 'base64');
+
+      const s3 = new AWS.S3({
+        params: {
+          Bucket: process.env.AWS_BUCKET_NAME
+        },
+      });
+
+      const data = {
+        Key: `${process.env.AWS_PASTE_PROFILE_IMAGES}/${document}.jpeg`,
+        Body: bufferImg,
+        Bucket: process.env.AWS_BUCKET_NAME,
+        ContentEncoding: 'image/jpeg',
+        ACL: "public-read"
+      }
+      const upload = await s3
+        .putObject(data, function (err, data) {
+          if (err) {
+            console.log('Error uploading data: ', err);
+          }
+        })
+        .promise().then(d => true).catch(e => false);
+      if (!upload) throw 400;
+      const imageUrl = `${process.env.AWS_URL_BUCKET}/${process.env.AWS_PASTE_PROFILE_IMAGES}/${document}.jpeg`;
+      const saveDbImageLink = await this.service.setUrlImageProfile({ document: document, profileImage: imageUrl }, { SetProfileImage: useCases.Subscriber.SetProfileImage }, serviceLocator);
+      if(!saveDbImageLink) throw 400;
+      return successfullyRead({ data: { imageUrl: imageUrl, fullUserData: saveDbImageLink } });
+    } catch (error) {
       return handleError(error);
     }
   }
@@ -59,7 +102,7 @@ class ProfileController {
     }
   }
 
-  async update() {}
+  async update() { }
 }
 
 module.exports = ProfileController;

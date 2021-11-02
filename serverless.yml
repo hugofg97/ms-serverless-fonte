@@ -9,6 +9,15 @@ provider:
   lambdaHashingVersion: "20201221"
   timeout: 30
   region: sa-east-1
+  environment:
+    bucketName: microservice-streaming-d-serverlessdeploymentbuck-89h0oescohwn
+    imageUploadBucket: media-fonte
+    region: sa-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - s3:*
+      Resource: '*'
 
 plugins:
   - serverless-dotenv-plugin # Allow set global parameters in env.{enviroment}
@@ -227,3 +236,13 @@ functions:
           path: /app/privacity
           method: get
           cors: true
+  uploadImage:
+    handler: gatways/routes/profile/main.profileImage
+    events:
+      - http:
+          path: /profile/image/{document}
+          method: post
+          cors: true
+          parameters:
+            paths:
+              document: true

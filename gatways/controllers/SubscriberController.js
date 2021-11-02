@@ -27,7 +27,7 @@ module.exports = class Subscriber {
       if (!body) throw 400;
       const { name, lastName, email, password, document, birthDate } =
         JSON.parse(body);
-
+console.log("entro")
       isRequired(name, 400);
       isRequired(lastName, 400);
       isRequired(email, 400);
@@ -52,6 +52,7 @@ module.exports = class Subscriber {
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
       );
+      console.log(existsSubscriber)
       if (existsSubscriber) throw { error: 409, field: "Email" };
 
       subscriber.password = await this.service.encryptPassword(subscriber);
@@ -92,7 +93,6 @@ module.exports = class Subscriber {
       );
 
       if (!existsSubscriber) throw 400;
-
       const comparePassword = await this.service.comparePassword({
         payloadPassword: password,
         password: existsSubscriber.password,

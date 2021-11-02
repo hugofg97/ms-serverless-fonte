@@ -5,11 +5,14 @@ const jwt = require("jsonwebtoken");
 
 module.exports = class extends ISubscriberService {
   async findByDocument({ document }, { FindOneSubscriber }, serviceLocator) {
-    const subscriber = FindOneSubscriber({ document }, serviceLocator);
+    console.log('entro')
+    const subscriber = await FindOneSubscriber({ document }, serviceLocator);
+    console.log(subscriber)
     return subscriber;
   }
   async findByEmail({ email }, { FindOneSubscriber }, serviceLocator) {
-    const subscriber = FindOneSubscriber({ email }, serviceLocator);
+    console.log('aijsas')
+    const subscriber = await FindOneSubscriber({ email }, serviceLocator);
     return subscriber;
   }
   async updatePassword(
@@ -17,7 +20,7 @@ module.exports = class extends ISubscriberService {
     { UpdatePassword },
     serviceLocator
   ) {
-    const subscriber = UpdatePassword(
+    const subscriber = await  UpdatePassword(
       { document: document, password: password },
       serviceLocator
     );
@@ -46,6 +49,13 @@ module.exports = class extends ISubscriberService {
   async updateSubscriber(subscriber, { UpdateSubscriber }, serviceLocator) {
     const updatedSubscriber = await UpdateSubscriber(
       subscriber,
+      serviceLocator
+    );
+    return updatedSubscriber;
+  }
+  async setUrlImageProfile({document, profileImage}, { SetProfileImage }, serviceLocator) {
+    const updatedSubscriber = await SetProfileImage(
+      {document, profileImage},
       serviceLocator
     );
     return updatedSubscriber;
