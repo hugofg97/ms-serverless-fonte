@@ -246,3 +246,11 @@ functions:
           parameters:
             paths:
               document: true
+  paymentAssignature:
+    handler: gatways/routes/payment/main.payment
+    events:
+      - http:
+          path: /payment/assignature
+          method: post
+          cors: true
+        

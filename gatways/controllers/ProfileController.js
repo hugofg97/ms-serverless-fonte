@@ -1,6 +1,7 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const SubscriberService = require("../services/SubscriberService");
+const {createCustomer, getCustomers,getCustomerById} = require('../../core/config/libs/payment/pagarme/apis/customers')
 const AWS = require('aws-sdk');
 const { Buffer } = require('buffer');
 const { isRequired, validateDocument } = require("../../core/config/libs/validator");
@@ -16,6 +17,7 @@ class ProfileController {
 
   async privacity() {
     try {
+      const a = await getCustomerById({ id: 'cus_Lo9rwKPhlpFJg6NE' })
       const privacity = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`;
       return successfullyRead({ data: privacity });
     } catch (error) {

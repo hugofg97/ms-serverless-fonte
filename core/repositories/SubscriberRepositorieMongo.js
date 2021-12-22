@@ -7,7 +7,7 @@ const {
 const MongoSubscriber = require("../schemas/subscriber");
 
 module.exports = class extends ISubscriberRepository {
-  async create({ name, lastName, document, email, birthDate, password }) {
+  async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
     const newUser = await MongoSubscriber.connectDb.create({
       name,
       lastName,
@@ -15,6 +15,7 @@ module.exports = class extends ISubscriberRepository {
       document,
       birthDate,
       password,
+      mobilePhone: mobilePhone,
     });
 
     return new ISubscriber({
@@ -24,14 +25,16 @@ module.exports = class extends ISubscriberRepository {
       lastName: newUser.lastName,
       document: newUser.document,
       birthDate: newUser.birthDate,
+      mobilePhone: newUser.mobilePhone,
       profileImage: null,
       password: "removed",
     });
   }
-  async update({ name, lastName, document, birthDate }) {
+  async update({ idPg, name, lastName, document, birthDate }) {
     const updated = await MongoSubscriber.connectDb.updateOne(
       { document: document },
       {
+        idPg,
         name,
         lastName,
         birthDate,
@@ -42,12 +45,14 @@ module.exports = class extends ISubscriberRepository {
     });
     return new ISubscriber({
       _id: subscriber._id,
+      idPg: subscriber.idPg,
       name: subscriber.name,
       email: subscriber.email,
       lastName: subscriber.lastName,
       document: subscriber.document,
       birthDate: subscriber.birthDate,
-      profileImage: newUser?.profileImage ?? null,
+      mobilePhone: subscriber?.mobilePhone ?? null,
+      profileImage: subscriber?.profileImage ?? null,
       password: "removed",
     });
   }
@@ -63,11 +68,13 @@ module.exports = class extends ISubscriberRepository {
     });
     return new ISubscriber({
       _id: subscriber._id,
+      idPg: subscriber.idPg,
       name: subscriber.name,
       email: subscriber.email,
       lastName: subscriber.lastName,
       document: subscriber.document,
       birthDate: subscriber.birthDate,
+      mobilePhone: subscriber?.mobilePhone ?? null,
       profileImage: subscriber?.profileImage ?? null,
       password: "removed",
     });
@@ -77,15 +84,16 @@ module.exports = class extends ISubscriberRepository {
     const subscriber = await MongoSubscriber.connectDb.findOne({
       document: document,
     });
-    console.log(subscriber)
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
+        idPg: subscriber.idPg,
         name: subscriber.name,
         email: subscriber.email,
         lastName: subscriber.lastName,
         document: subscriber.document,
         birthDate: subscriber.birthDate,
+        mobilePhone: subscriber?.mobilePhone ?? null,
         profileImage: subscriber?.profileImage ?? null,
         password: "removed",
       });
@@ -102,12 +110,14 @@ module.exports = class extends ISubscriberRepository {
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
+        idPg: subscriber.idPg,
         profileImage: subscriber?.profileImage ?? null,
         name: subscriber.name,
         email: subscriber.email,
         lastName: subscriber.lastName,
         document: subscriber.document,
         birthDate: subscriber.birthDate,
+        mobilePhone: subscriber?.mobilePhone ?? null,
         password: subscriber.password,
       });
     else return false;

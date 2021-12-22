@@ -3,6 +3,9 @@ require("./db");
 
 const schema = new mongoose.Schema(
   {
+    idPg: {
+      type: String,
+    },
     name: {
       type: String,
       required: true,
@@ -32,9 +35,14 @@ const schema = new mongoose.Schema(
       required: true,
       select: false,
     },
+    mobilePhone: {
+      type: String,
+      required:true,
+    },
     deletedAt: {
       type: Date,
     },
+    
   },
   { timestamps: true }
 );

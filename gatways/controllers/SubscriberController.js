@@ -1,9 +1,8 @@
 const serviceLocator = require("../../core/config/serviceLocator");
 const { ISubscriber } = require("../../interfaces/ISubscriber");
 const useCaseSubscriber = require("../../application/use_cases/Subscriber");
-const {
-  createCustomer,
-} = require("../../core/config/libs/payment/pagarme/apis/customers");
+const CustomerPG = require('../pagarme/services/customers');
+
 
 const {
   isRequired,
@@ -21,21 +20,23 @@ const SubscriberService = require("../services/SubscriberService");
 module.exports = class Subscriber {
   constructor() {
     this.service = new SubscriberService();
+    this.pgService = new CustomerPG();
   }
   async create({ body }) {
     try {
       if (!body) throw 400;
-      const { name, lastName, email, password, document, birthDate } =
+      const { name, lastName, email,mobilePhone, password, document, birthDate } =
         JSON.parse(body);
-console.log("entro")
       isRequired(name, 400);
       isRequired(lastName, 400);
       isRequired(email, 400);
       isRequired(password, 400);
+      isRequired(mobilePhone, 400);
       isRequired(document, 400);
       isRequired(birthDate, 400);
       validateDocument(document);
       validateEmail(email);
+
 
       const subscriber = new ISubscriber(JSON.parse(body));
 
@@ -52,22 +53,39 @@ console.log("entro")
         { FindOneSubscriber: useCaseSubscriber.FindByEmail },
         serviceLocator
       );
-      console.log(existsSubscriber)
       if (existsSubscriber) throw { error: 409, field: "Email" };
 
       subscriber.password = await this.service.encryptPassword(subscriber);
       subscriber.email = subscriber.email.toLowerCase().trim();
 
-      const result = await this.service.createSubscriber(
+      let result = await this.service.createSubscriber(
         subscriber,
         { CreateSubscriber: useCaseSubscriber.CreateSubscriber },
         serviceLocator
       );
-      if (result)
-        await createCustomer({
+      console.log(result);
+      let pgCustomer;
+      if (result) {
+         pgCustomer = await this.pgService.createCustomer({
           ...result,
-          name: `${result.name} ${result.lastName}`,
         });
+        console.log('___________>',pgCustomer)
+      }
+      if(pgCustomer) {
+        const { id, name, document, phones, birthdate} = pgCustomer;
+        result = await this.service.updateSubscriber(
+          { 
+            idPg: id ,
+            mobilePhone: `${phones.mobile_phone.area_code}${phones.mobile_phone.number}` ,
+            name: name.split(' ')[0],
+            lastName:name.split(' ')[1],
+            document,
+            birthDate: birthdate
+          },
+          { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
+          serviceLocator
+        );
+      }
 
       delete result.password;
 
@@ -75,6 +93,7 @@ console.log("entro")
 
       return successfullyCreated({ data: { ...result, token } });
     } catch (error) {
+      console.log(error)
       return handleError({ error: error });
     }
   }
@@ -230,4 +249,14 @@ console.log("entro")
       handleError({ error: error });
     }
   }
+
+  async linkAdressBilling({ body }) {
+    //.. associar telefone
+    //.. associar endereço
+    //.. associar cartão 
+  }
+  async linkCellPhone({body}) {
+    
+  }
+
 };

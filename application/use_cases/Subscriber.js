@@ -1,21 +1,23 @@
 module.exports.CreateSubscriber = (
-  { name, lastName, email, document, birthDate, password },
+  { name, lastName, email,mobilePhone, document, birthDate, password },
   { subscriberRepository }
 ) => {
   return subscriberRepository.create({
     name,
     lastName,
     email,
+    mobilePhone,
     document,
     birthDate,
     password,
   });
 };
 module.exports.UpdateSubscriber = (
-  { name, lastName, document, birthDate, password },
+  { idPg = null, name, lastName, document, birthDate, password },
   { subscriberRepository }
 ) => {
   return subscriberRepository.update({
+    idPg,
     name,
     lastName,
     document,
