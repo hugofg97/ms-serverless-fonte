@@ -39,6 +39,18 @@ const schema = new mongoose.Schema(
       type: String,
       required:true,
     },
+    address: {
+      type: Object,
+      default: {}
+    },
+    cards: {
+      type: Object,
+      default: {}
+    },
+    signature: {
+      type: Object,
+      default: {}
+    },
     deletedAt: {
       type: Date,
     },

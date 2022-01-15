@@ -6,6 +6,10 @@ module.exports = class extends IVideoRepository {
   constructor() {
     super();
   }
+  async create() {
+    const mongoVideos = await MongoVideo.connectDb.updateMany({ videoThumb: 'https://vegan.org/wp-content/uploads/2019/10/Meditation-Stock.jpg' });
+    return [];
+  }
   async findAll() {
     const mongoVideos = await MongoVideo.connectDb.find({ deletedAt: null });
     return mongoVideos.map((mongoVideo) => {

@@ -13,12 +13,16 @@ module.exports.CreateSubscriber = (
   });
 };
 module.exports.UpdateSubscriber = (
-  { idPg = null, name, lastName, document, birthDate, password },
+  { idPg = null, name, lastName, document, mobilePhone, address = {},cards = {}, signature = {}, birthDate, password },
   { subscriberRepository }
 ) => {
   return subscriberRepository.update({
     idPg,
     name,
+    mobilePhone,
+    address,
+    cards,
+    signature,
     lastName,
     document,
     birthDate,

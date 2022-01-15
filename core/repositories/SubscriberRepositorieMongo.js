@@ -8,7 +8,7 @@ const MongoSubscriber = require("../schemas/subscriber");
 
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
-    const newUser = await MongoSubscriber.connectDb.create({
+    const subscriber = await MongoSubscriber.connectDb.create({
       name,
       lastName,
       email,
@@ -19,25 +19,32 @@ module.exports = class extends ISubscriberRepository {
     });
 
     return new ISubscriber({
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      lastName: newUser.lastName,
-      document: newUser.document,
-      birthDate: newUser.birthDate,
-      mobilePhone: newUser.mobilePhone,
+      _id: subscriber._id,
+      name: subscriber.name,
+      email: subscriber.email,
+      lastName: subscriber.lastName,
+      document: subscriber.document,
+      birthDate: subscriber.birthDate,
+      mobilePhone: subscriber.mobilePhone,
       profileImage: null,
+      address: subscriber?.address ?? {},
+      cards: subscriber?.cards ?? {},
+      signature: subscriber?.signature ?? {},
       password: "removed",
     });
   }
-  async update({ idPg, name, lastName, document, birthDate }) {
+  async update({ idPg, name, mobilePhone, address, cards, lastName, document, birthDate }) {
+    console.log(cards)
     const updated = await MongoSubscriber.connectDb.updateOne(
       { document: document },
       {
         idPg,
         name,
+        mobilePhone,
+        address,
         lastName,
         birthDate,
+        cards
       }
     );
     const subscriber = await MongoSubscriber.connectDb.findOne({
@@ -53,6 +60,9 @@ module.exports = class extends ISubscriberRepository {
       birthDate: subscriber.birthDate,
       mobilePhone: subscriber?.mobilePhone ?? null,
       profileImage: subscriber?.profileImage ?? null,
+      address: subscriber?.address ?? {},
+      cards: subscriber?.cards ?? {},
+      signature: subscriber?.signature ?? {},
       password: "removed",
     });
   }
@@ -76,6 +86,9 @@ module.exports = class extends ISubscriberRepository {
       birthDate: subscriber.birthDate,
       mobilePhone: subscriber?.mobilePhone ?? null,
       profileImage: subscriber?.profileImage ?? null,
+      address: subscriber?.address ?? {},
+      cards: subscriber?.cards ?? {},
+      signature: subscriber?.signature ?? {},
       password: "removed",
     });
   }
@@ -95,6 +108,9 @@ module.exports = class extends ISubscriberRepository {
         birthDate: subscriber.birthDate,
         mobilePhone: subscriber?.mobilePhone ?? null,
         profileImage: subscriber?.profileImage ?? null,
+        address: subscriber?.address ?? {},
+        cards: subscriber?.cards ?? {},
+        signature: subscriber?.signature ?? {},
         password: "removed",
       });
     else return false;
@@ -118,6 +134,9 @@ module.exports = class extends ISubscriberRepository {
         document: subscriber.document,
         birthDate: subscriber.birthDate,
         mobilePhone: subscriber?.mobilePhone ?? null,
+        address: subscriber?.address ?? {},
+        cards: subscriber?.cards ?? {},
+        signature: subscriber?.signature ?? {},
         password: subscriber.password,
       });
     else return false;

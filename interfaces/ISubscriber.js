@@ -11,6 +11,9 @@ class ISubscriber {
     password,
     mobilePhone,
     profileImage = null,
+    address = {},
+    cards = {},
+    signature = {},
   }) {
     this._id = _id;
     this.idPg = idPg;
@@ -22,6 +25,9 @@ class ISubscriber {
     this.password = password;
     this.mobilePhone = mobilePhone;
     this.profileImage = profileImage;
+    this.address = address;
+    this.cards = cards;
+    this.signature = signature;
   }
 }
 

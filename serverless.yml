@@ -253,4 +253,25 @@ functions:
           path: /payment/assignature
           method: post
           cors: true
+  linkAddressBilling:
+    handler: gatways/routes/subscriber/main.linkAddressBilling
+    events:
+      - http:
+          path: /subscriber/address/{document}
+          method: post
+          cors: true
+          parameters:
+            paths:
+              document: true
+        
+  linkBillingCard:
+    handler: gatways/routes/subscriber/main.linkBillingCard
+    events:
+      - http:
+          path: /subscriber/card/{document}
+          method: post
+          cors: true
+          parameters:
+            paths:
+              document: true
         

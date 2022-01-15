@@ -24,6 +24,16 @@ module.exports.findByDocument = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.findByDocument({ body, pathParameters });
 };
+module.exports.linkAddressBilling = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await subscriberController.linkAdressBilling({ body, pathParameters });
+};
+module.exports.linkBillingCard = async (event, context) => {
+  console.log('to aki ó')
+  const { body, pathParameters } = event;
+  console.log(body, pathParameters)
+  return await subscriberController.linkBillingCard({ body, pathParameters });
+};
 module.exports.forgotPassword = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.forgotPassword({ body, pathParameters });

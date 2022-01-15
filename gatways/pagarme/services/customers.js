@@ -29,21 +29,40 @@ module.exports = class CustomerPG {
       throw 500;
     }
   };
-  async createAddress({ idPg, street, zipCode, neighborhood, number, complement, city, state, country }) {
+  async createAddress(idPg, address) {
     try {
-      const payload = {
-        line_1: `${number ?? 'Sem número'}, ${street}, ${neighborhood}`,
-        line_2: `${complement ?? 'Sem complemento'}`,
-        zip_code: zipCode,
-        city,
-        state,
-        country,
-
-      }
+  
       const path = createPath({ entity: this.entity, param: `${idPg}/addresses` });
-      const { data } = await pagarmeConnect.post(path, payload);
+      const { data } = await pagarmeConnect.post(path, address);
       return data;
     } catch (err) {
+      throw 500;
+    }
+  }
+  async createBillingCard({ idPg, number, holderName, holderDocument, expMonth, expYear, cvv, brand, label, address }) {
+    try {
+      const payload = {
+        number,
+        holder_name: holderName,
+        holder_document: holderDocument,
+        exp_month: parseInt(expMonth),
+        exp_year: parseInt(expYear),
+        cvv,
+        brand,
+        label,
+        billing_address: {...address, country: 'BR'},
+        "options": {
+          "verify_card": true
+      }
+
+      }
+   
+      const path = createPath({ entity: this.entity, param: `${idPg}/cards` });
+      const { data } = await pagarmeConnect.post(path, payload);
+    
+      return data;
+    } catch (err) {
+    console.log(err)
       throw 500;
     }
   }
@@ -62,7 +81,6 @@ module.exports = class CustomerPG {
     try {
       const path = createPath({ entity: this.entity, param: id });
       const { data } = await pagarmeConnect.get(path);
-
       return data;
     } catch (err) {
       // console.log(err.response.data)

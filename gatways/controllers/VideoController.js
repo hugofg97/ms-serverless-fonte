@@ -19,20 +19,20 @@ class VideoController {
 
       const video = new IVideo(JSON.parse(body));
 
-      await isRequired(video.videoName, 400);
-      await isRequired(video.videoDescription, 400);
-      await isRequired(video.videoThumb, 400);
-      await isRequired(video.videoUrl, 400);
-      // await isRequired(video.locked, 400);
-      await isRequired(video.sessionId, 400);
+      // await isRequired(video.videoName, 400);
+      // await isRequired(video.videoDescription, 400);
+      // await isRequired(video.videoThumb, 400);
+      // await isRequired(video.videoUrl, 400);
+      // // await isRequired(video.locked, 400);
+      // await isRequired(video.sessionId, 400);
 
-      this.service.findByName(
-        video,
-        {
-          FindByName: useCases.Video.FindByName,
-        },
-        serviceLocator
-      );
+      // this.service.findByName(
+      //   video,
+      //   {
+      //     FindByName: useCases.Video.FindByName,
+      //   },
+      //   serviceLocator
+      // );
 
       const result = this.service.create(
         video,

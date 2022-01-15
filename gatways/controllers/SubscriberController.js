@@ -2,6 +2,7 @@ const serviceLocator = require("../../core/config/serviceLocator");
 const { ISubscriber } = require("../../interfaces/ISubscriber");
 const useCaseSubscriber = require("../../application/use_cases/Subscriber");
 const CustomerPG = require('../pagarme/services/customers');
+const PaymentPg = require('../pagarme/services/payment');
 
 
 const {
@@ -21,11 +22,12 @@ module.exports = class Subscriber {
   constructor() {
     this.service = new SubscriberService();
     this.pgService = new CustomerPG();
+    this.paymentService = new PaymentPg();
   }
   async create({ body }) {
     try {
       if (!body) throw 400;
-      const { name, lastName, email,mobilePhone, password, document, birthDate } =
+      const { name, lastName, email, mobilePhone, password, document, birthDate } =
         JSON.parse(body);
       isRequired(name, 400);
       isRequired(lastName, 400);
@@ -63,22 +65,20 @@ module.exports = class Subscriber {
         { CreateSubscriber: useCaseSubscriber.CreateSubscriber },
         serviceLocator
       );
-      console.log(result);
       let pgCustomer;
       if (result) {
-         pgCustomer = await this.pgService.createCustomer({
+        pgCustomer = await this.pgService.createCustomer({
           ...result,
         });
-        console.log('___________>',pgCustomer)
       }
-      if(pgCustomer) {
-        const { id, name, document, phones, birthdate} = pgCustomer;
+      if (pgCustomer) {
+        const { id, name, document, phones, birthdate } = pgCustomer;
         result = await this.service.updateSubscriber(
-          { 
-            idPg: id ,
-            mobilePhone: `${phones.mobile_phone.area_code}${phones.mobile_phone.number}` ,
+          {
+            idPg: id,
+            mobilePhone: `${phones.mobile_phone.area_code}${phones.mobile_phone.number}`,
             name: name.split(' ')[0],
-            lastName:name.split(' ')[1],
+            lastName: name.split(' ')[1],
             document,
             birthDate: birthdate
           },
@@ -250,13 +250,159 @@ module.exports = class Subscriber {
     }
   }
 
-  async linkAdressBilling({ body }) {
-    //.. associar telefone
-    //.. associar endereço
-    //.. associar cartão 
-  }
-  async linkCellPhone({body}) {
-    
-  }
+  async linkAdressBilling({ body, pathParameters }) {
+    try {
+      console.log('asas')
+      if (!body) throw 400;
+      const { idPg, street, zipCode, neighborhood, number, complement, city, state, country } = JSON.parse(body);
+      console.log(body)
+      isRequired(idPg, 400);
+      isRequired(street, 400);
+      isRequired(zipCode, 400);
+      isRequired(neighborhood, 400);
+      isRequired(complement, 400);
+      isRequired(number, 400);
+      isRequired(city, 400);
+      isRequired(state, 400);
+      isRequired(country, 400);
 
+      const { document } = pathParameters;
+
+      isRequired(document);
+      validateDocument(document);
+
+      const address = {
+        "street": street,
+        "zip_code": zipCode,
+        "neighborhood": neighborhood,
+        "number": number,
+        "city": city,
+        "state": state,
+        "country": country
+      };
+
+      const existSubscriber = await this.service.findByDocument(
+        { document: document },
+        { FindOneSubscriber: useCaseSubscriber.FindByDocument },
+        serviceLocator
+      );
+
+      if (!existSubscriber) throw 404;
+
+      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: idPg });
+
+      if (!existsSubscriberInPg) throw 404;
+
+      const newAddress = await this.pgService.createAddress(idPg, address);
+
+
+      if (!newAddress) throw 500;
+   
+      delete newAddress.customer;
+      existSubscriber.address = newAddress;
+      const result = await this.service.updateSubscriber(
+        existSubscriber,
+        { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
+        serviceLocator
+      );
+
+
+      return successfullyRead({ data: result });
+    } catch (error) {
+      handleError({ error: error });
+    }
+  }
+  async linkBillingCard({ body, pathParameters }) {
+    try {
+      if (!body) throw 400;
+
+      const { idPg, number, holderName, holderDocument, expMonth, expYear, cvv, brand, label, address } = JSON.parse(body);
+
+      isRequired(idPg, 400);
+      isRequired(number, 400);
+      isRequired(holderName, 400);
+      isRequired(holderDocument, 400);
+      isRequired(expMonth, 400);
+      isRequired(expYear, 400);
+      isRequired(cvv, 400);
+      isRequired(brand, 400);
+      isRequired(label, 400);
+      isRequired(address, 400);
+      const { document } = pathParameters;
+
+      isRequired(document);
+      validateDocument(document);
+
+      const card = JSON.parse(body);
+      const existSubscriber = await this.service.findByDocument(
+        { document: document },
+        { FindOneSubscriber: useCaseSubscriber.FindByDocument },
+        serviceLocator
+      );
+      if (!existSubscriber) throw 404;
+
+      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: idPg });
+
+      if (!existsSubscriberInPg) throw 404;
+
+      const newCard = await this.pgService.createBillingCard(card);
+
+      if (!newCard) throw 500;
+      delete newCard.customer;
+      existSubscriber.cards = newCard;
+      const result = await this.service.updateSubscriber(
+        existSubscriber,
+        { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
+        serviceLocator
+      );
+      return successfullyRead({ data: result });
+
+    } catch (error) {
+
+    }
+  }
+  async paymentAssignature({ body, pathParameters }) {
+    try {
+      if (!body) throw 400;
+
+      const { password } = JSON.parse(body);
+
+      isRequired(password, 400);
+      const { document } = pathParameters;
+
+      isRequired(document);
+      validateDocument(document);
+
+      const card = JSON.parse(body);
+      const existSubscriber = await this.service.findByDocument(
+        { document: document },
+        { FindOneSubscriber: useCaseSubscriber.FindByDocument },
+        serviceLocator
+      );
+      if (!existSubscriber) throw 400;
+      const comparePassword = await this.service.comparePassword({
+        payloadPassword: password,
+        password: existSubscriber.password,
+      });
+      if (!comparePassword) throw 400;
+
+      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: existSubscriber?.idPg });
+
+      if (!existsSubscriberInPg) throw 404;
+
+      const payment = await this.paymentService.payRecurrency({idPg: existSubscriber?.idPg, cards: existSubscriber?.cards});
+      if(!payment) throw 404;
+      existSubscriber.signature = payment;
+      const result = await this.service.updateSubscriber(
+        existSubscriber,
+        { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
+        serviceLocator
+      );
+
+      return successfullyRead({ data: result });
+
+    } catch (error) {
+
+    }
+  }
 };
