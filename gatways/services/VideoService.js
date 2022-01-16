@@ -14,7 +14,7 @@ module.exports = class extends IVideoService {
   }
 
   async pagination({ page, sessionId }, { Pagination }, serviceLocator) {
-    return await Pagination({ page, sessionId }, serviceLocator);
+    return await Pagination({ page, sessionId, limit: 5 }, serviceLocator);
   }
   async findBestRanking({ subscriberId }, { RankedVideos }, serviceLocator) {
     let allVideos = await RankedVideos(serviceLocator);

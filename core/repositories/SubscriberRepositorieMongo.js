@@ -33,7 +33,7 @@ module.exports = class extends ISubscriberRepository {
       password: "removed",
     });
   }
-  async update({ idPg, name, mobilePhone, address, cards, lastName, document, birthDate }) {
+  async update({ idPg, name, mobilePhone, address, signature, cards, lastName, document, birthDate }) {
     console.log(cards)
     const updated = await MongoSubscriber.connectDb.updateOne(
       { document: document },
@@ -43,6 +43,7 @@ module.exports = class extends ISubscriberRepository {
         mobilePhone,
         address,
         lastName,
+        signature,
         birthDate,
         cards
       }

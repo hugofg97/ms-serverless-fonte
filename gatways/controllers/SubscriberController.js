@@ -130,22 +130,21 @@ module.exports = class Subscriber {
     try {
       if (!pathParameters) throw 400;
       const { document } = pathParameters;
-
       await isRequired(document, 400);
-
+      
       await validateDocument(document);
-
+      
       const subscriber = await this.service.findByDocument(
         { document },
         {
           FindOneSubscriber: useCaseSubscriber.FindByDocument,
         },
         serviceLocator
-      );
-      if (!subscriber) throw 400;
-      // const result = await this.service.sendMail(subscriber);
+        );
+        if (!subscriber) throw 400;
+      const result = await this.service.sendMail(subscriber);
 
-      return successfullyRead({ data: { codeSecurity: "BHV45" } });
+      return successfullyRead({ data: { codeSecurity: result } });
     } catch (error) {
       return handleError({ error: error });
     }
@@ -213,7 +212,8 @@ module.exports = class Subscriber {
       if (!existSubscriber) throw 404;
       return successfullyRead({ data: existSubscriber });
     } catch (error) {
-      handleError({ error: error });
+      return handleError({ error: error });
+
     }
   }
   async update({ body, pathParameters }) {
@@ -246,7 +246,7 @@ module.exports = class Subscriber {
 
       return successfullyRead({ data: result });
     } catch (error) {
-      handleError({ error: error });
+      return handleError({ error: error });
     }
   }
 
@@ -297,7 +297,7 @@ module.exports = class Subscriber {
 
 
       if (!newAddress) throw 500;
-   
+
       delete newAddress.customer;
       existSubscriber.address = newAddress;
       const result = await this.service.updateSubscriber(
@@ -309,7 +309,7 @@ module.exports = class Subscriber {
 
       return successfullyRead({ data: result });
     } catch (error) {
-      handleError({ error: error });
+      return handleError({ error: error });
     }
   }
   async linkBillingCard({ body, pathParameters }) {
@@ -344,10 +344,16 @@ module.exports = class Subscriber {
       const existsSubscriberInPg = await this.pgService.getCustomerById({ id: idPg });
 
       if (!existsSubscriberInPg) throw 404;
-
-      const newCard = await this.pgService.createBillingCard(card);
-
-      if (!newCard) throw 500;
+      let newCard = {};
+      if (existsSubscriberInPg?.cards) {
+        await this.pgService.deleteBillingCard({ idPg, idCard: existSubscriber?.cards.id });
+        newCard = await this.pgService.createBillingCard(card);
+        if (!newCard) throw 500;
+      }
+      else {
+        newCard = await this.pgService.createBillingCard(card);
+        if (!newCard) throw 500;
+      }
       delete newCard.customer;
       existSubscriber.cards = newCard;
       const result = await this.service.updateSubscriber(
@@ -358,6 +364,7 @@ module.exports = class Subscriber {
       return successfullyRead({ data: result });
 
     } catch (error) {
+      return handleError({ error: error });
 
     }
   }
@@ -372,29 +379,33 @@ module.exports = class Subscriber {
 
       isRequired(document);
       validateDocument(document);
-
-      const card = JSON.parse(body);
       const existSubscriber = await this.service.findByDocument(
         { document: document },
         { FindOneSubscriber: useCaseSubscriber.FindByDocument },
         serviceLocator
       );
       if (!existSubscriber) throw 400;
+      const subscriber = await this.service.findByEmail(
+        { email: existSubscriber.email },
+        { FindOneSubscriber: useCaseSubscriber.FindByEmail },
+        serviceLocator
+      );
+      if (!subscriber) throw 400;
       const comparePassword = await this.service.comparePassword({
         payloadPassword: password,
-        password: existSubscriber.password,
+        password: subscriber.password,
       });
       if (!comparePassword) throw 400;
 
-      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: existSubscriber?.idPg });
+      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: subscriber?.idPg });
 
       if (!existsSubscriberInPg) throw 404;
 
-      const payment = await this.paymentService.payRecurrency({idPg: existSubscriber?.idPg, cards: existSubscriber?.cards});
-      if(!payment) throw 404;
-      existSubscriber.signature = payment;
+      const payment = await this.paymentService.payRecurrency({ idPg: subscriber?.idPg, cards: subscriber?.cards });
+      if (!payment) throw 404;
+      subscriber.signature = payment;
       const result = await this.service.updateSubscriber(
-        existSubscriber,
+        subscriber,
         { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
         serviceLocator
       );
@@ -402,6 +413,7 @@ module.exports = class Subscriber {
       return successfullyRead({ data: result });
 
     } catch (error) {
+      return handleError({ error: error });
 
     }
   }

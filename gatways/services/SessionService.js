@@ -68,7 +68,7 @@ module.exports = class extends ISessionService {
         {
           page: 1,
           sessionId: value._id,
-          limit: limit,
+          limit: 5,
         },
         serviceLocator
       );

@@ -5,13 +5,10 @@ const jwt = require("jsonwebtoken");
 
 module.exports = class extends ISubscriberService {
   async findByDocument({ document }, { FindOneSubscriber }, serviceLocator) {
-    console.log('entro')
     const subscriber = await FindOneSubscriber({ document }, serviceLocator);
-    console.log(subscriber)
     return subscriber;
   }
   async findByEmail({ email }, { FindOneSubscriber }, serviceLocator) {
-    console.log('aijsas')
     const subscriber = await FindOneSubscriber({ email }, serviceLocator);
     return subscriber;
   }
@@ -78,16 +75,17 @@ module.exports = class extends ISubscriberService {
         rejectUnauthorized: false,
       },
     });
+   
+    let code = Math.random().toString(36).substring(7);
     const info = await transporter.sendMail({
       from: `FONTE APP <${process.env.MAIL_USER_NAME}`,
       to: email,
       subject: "Recuperação de senha",
       text: "Clique no link e recupere sua senha",
-      html: "<b>Copie e cole o código no seu app: BHV45</b>",
+      html: `<b>Copie e cole o código no seu app: ${code}</b>`,
     });
+    
 
-    info.codeSecurity = "BHV45";
-
-    return info;
+    return code;
   }
 };

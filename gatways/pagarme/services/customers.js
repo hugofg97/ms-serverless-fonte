@@ -59,6 +59,19 @@ module.exports = class CustomerPG {
    
       const path = createPath({ entity: this.entity, param: `${idPg}/cards` });
       const { data } = await pagarmeConnect.post(path, payload);
+      console.log('>>>>>>>>>>>>>>>>>>>>>>>>', data)
+    
+      return data;
+    } catch (err) {
+    console.log(err)
+      throw 500;
+    }
+  }
+  async deleteBillingCard({ idPg, idCard}) {
+    try {
+      const path = createPath({ entity: this.entity, param: `${idPg}/cards/${idCard}` });
+      const { data } = await pagarmeConnect.delete(path);
+      console.log('>>>>>>>>>>>>>>>>>>>>>>>>', data)
     
       return data;
     } catch (err) {

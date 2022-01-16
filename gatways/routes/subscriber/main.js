@@ -29,10 +29,12 @@ module.exports.linkAddressBilling = async (event, context) => {
   return await subscriberController.linkAdressBilling({ body, pathParameters });
 };
 module.exports.linkBillingCard = async (event, context) => {
-  console.log('to aki ó')
   const { body, pathParameters } = event;
-  console.log(body, pathParameters)
   return await subscriberController.linkBillingCard({ body, pathParameters });
+};
+module.exports.paymentAssignature = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await subscriberController.paymentAssignature({ body, pathParameters });
 };
 module.exports.forgotPassword = async (event, context) => {
   const { body, pathParameters } = event;
