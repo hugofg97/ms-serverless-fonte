@@ -7,6 +7,12 @@ const successfullyCreated = async ({ data }) => {
       data: data,
       message: messageResponse.CREATED,
     }),
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers" : "Content-Type",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+  },
   };
 };
 const successfullyRead = async ({ data }) => {
@@ -16,6 +22,12 @@ const successfullyRead = async ({ data }) => {
       data: data,
       message: messageResponse.READ_DATA,
     }),
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers" : "Content-Type",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+  },
   };
 };
 const handleError = async ({ error }) => {

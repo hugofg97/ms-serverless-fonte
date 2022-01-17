@@ -50,7 +50,6 @@ class TherapyController {
   }
   async findAll({ queryStringParameters }) {
     try {
-      console.log("aaaa", queryStringParameters);
 
       const subscriberId = queryStringParameters?.subscriberId ?? "";
 

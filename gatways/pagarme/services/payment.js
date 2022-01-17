@@ -20,7 +20,11 @@ module.exports = class CustomerPG {
 
       const path = createPath({ entity: this.entity });
       const { data } = await pagarmeConnect.post(path, payload);
-
+      const fatura = await pagarmeConnect.get(`/invoices?subscription_id=${data.id}`, payload); 
+      const isValid = fatura.data.data.filter(fatura => fatura?.status === 'canceled' || fatura?.status === 'failed');
+      if(isValid.length > 0) data.active = false;
+      else data.active = true;
+      data.invoice = fatura.data.data;
       return data;
     } catch (err) {
       console.log(err)

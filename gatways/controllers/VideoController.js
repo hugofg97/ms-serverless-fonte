@@ -1,6 +1,7 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const VideoService = require("../services/VideoService");
+const SubscriberService = require("../services/SubscriberService");
 const { IVideo } = require("../../interfaces/IVideo");
 const { isRequired, fildExists } = require("../../core/config/libs/validator");
 const {
@@ -12,6 +13,7 @@ const {
 class VideoController {
   constructor() {
     this.service = new VideoService();
+    this.subscriberService = new SubscriberService();
   }
   async create({ body }) {
     try {
@@ -53,7 +55,7 @@ class VideoController {
       await isRequired(pathParameters.page, 400);
       await isRequired(pathParameters.sessionId, 400);
       const subscriberId = queryStringParameters?.subscriberId ?? "";
-
+      console.log(queryStringParameters?.subscriberId, 'LLLLLLLLLLLLLLLLLL')
       const result = await this.service.pagination(
         pathParameters,
         {
@@ -62,11 +64,18 @@ class VideoController {
         serviceLocator
       );
 
-      const videos = this.service.isLikedBySubscriber({
+      let videos = this.service.isLikedBySubscriber({
         videos: result,
         subscriberId: subscriberId,
       });
 
+      if(subscriberId) {
+
+        const subscriber = await this.subscriberService.findById({subscriberId}, {FindById: useCases.Subscriber.FindById}, serviceLocator);
+        if(subscriber?.signature && subscriber?.signature?.active) {
+          videos = this.service.unlockVideos({videos})
+        }
+      }
       return successfullyRead({ data: videos });
     } catch (error) {
       console.log(error);
@@ -111,17 +120,26 @@ class VideoController {
       return handleError({ error });
     }
   }
-  async findLikedsBySubscriber({ pathParameters }) {
+  async findLikedsBySubscriber({ pathParameters, queryStringParameters }) {
     try {
+      const page = queryStringParameters?.page ?? 1;
       if (!pathParameters) throw 400;
       const { subscriberId } = pathParameters;
       isRequired(subscriberId, 400);
       const videos = await this.service.findLikedsBySubscriber(
         {
           subscriberId: subscriberId,
+          page: page,
         },
         serviceLocator
       );
+      if(subscriberId) {
+
+        const subscriber = await this.subscriberService.findById({subscriberId}, {FindById: useCases.Subscriber.FindById}, serviceLocator);
+        if(subscriber?.signature  && subscriber?.signature?.active) {
+          videos = this.service.unlockVideos({videos})
+        }
+      }
       return successfullyRead({ data: videos });
     } catch (error) {
       console.log(error);
@@ -131,7 +149,6 @@ class VideoController {
   async findBestRanking({ queryStringParameters }) {
     try {
       const subscriberId = queryStringParameters?.subscriberId ?? "";
-      console.log("passou");
       const rankedVideos = await this.service.findBestRanking(
         { subscriberId: subscriberId },
         {
@@ -139,6 +156,13 @@ class VideoController {
         },
         serviceLocator
       );
+      if(subscriberId) {
+
+        const subscriber = await this.subscriberService.findById({subscriberId}, {FindById: useCases.Subscriber.FindById}, serviceLocator);
+        if(subscriber?.signature && subscriber?.signature?.active) {
+          rankedVideos = this.service.unlockVideos({videos: rankedVideos})
+        }
+      }
       return successfullyRead({ data: rankedVideos });
     } catch (error) {
       console.log(error);

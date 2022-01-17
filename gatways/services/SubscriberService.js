@@ -4,6 +4,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 module.exports = class extends ISubscriberService {
+  async findById({subscriberId}, {FindById}, serviceLocator) {
+    const subscriber = await FindById({ subscriberId }, serviceLocator);
+    return subscriber;
+  }
   async findByDocument({ document }, { FindOneSubscriber }, serviceLocator) {
     const subscriber = await FindOneSubscriber({ document }, serviceLocator);
     return subscriber;
@@ -23,7 +27,7 @@ module.exports = class extends ISubscriberService {
     );
     return subscriber;
   }
-
+ 
   async encryptPassword({ password }) {
     const salt = bcrypt.genSaltSync(10);
     return bcrypt.hashSync(password, salt);

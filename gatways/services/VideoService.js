@@ -39,6 +39,12 @@ module.exports = class extends IVideoService {
       return video;
     });
   }
+  unlockVideos({ videos }) {
+    return videos.map((video) => {
+      video.locked = false;
+      return video;
+    });
+  }
   async like({ subscriberId, videoId }, { videoRepository }) {
     const video = await videoRepository.findById({ videoId: videoId });
     if (!video.thoseWhoLiked.includes(subscriberId)) {
@@ -77,9 +83,9 @@ module.exports = class extends IVideoService {
     delete video.thoseWhoLiked;
     return video;
   }
-  async findLikedsBySubscriber({ subscriberId }, { videoRepository }) {
+  async findLikedsBySubscriber({ subscriberId, page }, { videoRepository }) {
     const videos = await videoRepository.findAll();
-    return videos.filter((video) => {
+    const videosLikeds=  videos.filter((video) => {
       if (
         video.thoseWhoLiked.length &&
         video.thoseWhoLiked.includes(subscriberId)
@@ -90,5 +96,12 @@ module.exports = class extends IVideoService {
         return video;
       }
     });
+    if(videosLikeds && videosLikeds.length <= 0) return [];
+    const skip = 5 * (page - 1);
+    let limit = skip + 5;
+    if(limit >= videosLikeds.length) {
+      limit = videosLikeds.length
+    }
+    return videosLikeds.slice(skip, limit)
   }
 };

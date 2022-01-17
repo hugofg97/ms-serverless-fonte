@@ -1,6 +1,7 @@
 const useCases = require("../../application/use_cases/main");
 const serviceLocator = require("../../core/config/serviceLocator");
 const SessionService = require("../services/SessionService");
+const SubscriberService = require("../services/SubscriberService");
 const { ISession } = require("../../interfaces/ISession");
 const { isRequired } = require("../../core/config/libs/validator");
 const {
@@ -12,6 +13,7 @@ const {
 class SessionController {
   constructor() {
     this.service = new SessionService();
+    this.subscriberService = new SubscriberService();
   }
   async create({ body }) {
     try {
@@ -51,13 +53,22 @@ class SessionController {
       const { tag } = pathParameters;
       const subscriberId = queryStringParameters?.subscriberId ?? "";
       const limit = queryStringParameters?.limit ?? 5;
-
       isRequired(tag, 400);
+      let isSubscriber = false;
+      if (subscriberId) {
 
+        const subscriber = await this.subscriberService.findById({ subscriberId: subscriberId }, { FindById: useCases.Subscriber.FindById }, serviceLocator);
+        console.log(subscriber?.signature?.active)
+
+        if (subscriber?.signature  && subscriber?.signature?.active) {
+          isSubscriber = true;
+        }
+      }
       const result = await this.service.findAll(
         {
           limit: limit,
           tag: tag,
+          isSubscriber: isSubscriber,
           subscriberId: subscriberId,
         },
         {
@@ -91,9 +102,16 @@ class SessionController {
       await isRequired(tag, 400);
 
       const subscriberId = queryStringParameters?.subscriberId ?? "";
+      let isSubscriber = false;
+      if (subscriberId) {
 
+        const subscriber = await this.subscriberService.findById({ subscriberId: subscriberId }, { FindById: useCases.Subscriber.FindById }, serviceLocator);
+        if (subscriber?.signature  && subscriber?.signature?.active) {
+          isSubscriber = true;
+        }
+      }
       const result = await this.service.pagination(
-        { page: page, tag: tag, subscriberId: subscriberId },
+        { page: page, tag: tag, isSubscriber: isSubscriber, subscriberId: subscriberId },
         {
           Pagination: useCases.Session.Pagination,
           PaginationVideo: useCases.Video.Pagination,
@@ -107,7 +125,7 @@ class SessionController {
       return handleError(error);
     }
   }
-  async update() {}
+  async update() { }
 }
 
 module.exports = SessionController;

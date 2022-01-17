@@ -5,7 +5,8 @@ const {
   ISubscriber,
 } = require("../../interfaces/ISubscriber");
 const MongoSubscriber = require("../schemas/subscriber");
-
+const mongoose = require('mongoose')
+const {ObjectId} = require('mongodb')
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
     const subscriber = await MongoSubscriber.connectDb.create({
@@ -97,6 +98,29 @@ module.exports = class extends ISubscriberRepository {
   async findByDocument({ document }) {
     const subscriber = await MongoSubscriber.connectDb.findOne({
       document: document,
+    });
+    if (subscriber)
+      return new ISubscriber({
+        _id: subscriber._id,
+        idPg: subscriber.idPg,
+        name: subscriber.name,
+        email: subscriber.email,
+        lastName: subscriber.lastName,
+        document: subscriber.document,
+        birthDate: subscriber.birthDate,
+        mobilePhone: subscriber?.mobilePhone ?? null,
+        profileImage: subscriber?.profileImage ?? null,
+        address: subscriber?.address ?? {},
+        cards: subscriber?.cards ?? {},
+        signature: subscriber?.signature ?? {},
+        password: "removed",
+      });
+    else return false;
+  }
+  async findById({ subscriberId }) {
+    const id = new ObjectId.createFromHexString(subscriberId.trim());
+    const subscriber = await MongoSubscriber.connectDb.findOne({
+      _id: id,
     });
     if (subscriber)
       return new ISubscriber({

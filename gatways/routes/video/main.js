@@ -32,8 +32,8 @@ module.exports.update = async (event, context) => {
   return await videoController.update({ body, pathParameters });
 };
 module.exports.likedBySubscriber = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await videoController.findLikedsBySubscriber({ body, pathParameters });
+  const { body, pathParameters, queryStringParameters } = event;
+  return await videoController.findLikedsBySubscriber({ body, pathParameters,queryStringParameters });
 };
 module.exports.findBestRankVideos = async (event, context) => {
   const { body, pathParameters } = event;

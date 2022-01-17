@@ -16,7 +16,7 @@ module.exports = class extends ISessionService {
   }
 
   async findAll(
-    { limit, tag, subscriberId },
+    { limit, tag, subscriberId, isSubscriber },
     { FindAllSessions, PaginationVideo },
     serviceLocator
   ) {
@@ -26,6 +26,7 @@ module.exports = class extends ISessionService {
     );
 
     await this.#videosPerSession({
+      isSubscriber,
       allSessions,
       limit,
       subscriberId,
@@ -36,7 +37,7 @@ module.exports = class extends ISessionService {
   }
 
   async pagination(
-    { limit, tag, page, subscriberId },
+    { limit, tag, page, subscriberId,isSubscriber },
     { Pagination, PaginationVideo },
     serviceLocator
   ) {
@@ -46,6 +47,7 @@ module.exports = class extends ISessionService {
     );
 
     await this.#videosPerSession({
+      isSubscriber,
       allSessions,
       subscriberId,
       PaginationVideo,
@@ -56,6 +58,7 @@ module.exports = class extends ISessionService {
   }
   async #videosPerSession({
     limit,
+    isSubscriber,
     allSessions,
     subscriberId,
     PaginationVideo,
@@ -76,6 +79,7 @@ module.exports = class extends ISessionService {
         subscriberId: subscriberId,
         videos: videos,
       });
+      if(isSubscriber) allSessions[index].videos = videoService.unlockVideos({videos: videos});
     }
   }
   findAllTags() {

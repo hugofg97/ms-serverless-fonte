@@ -40,6 +40,9 @@ module.exports.SetProfileImage = (
 module.exports.FindByDocument = ({ document }, { subscriberRepository }) => {
   return subscriberRepository.findByDocument({ document });
 };
+module.exports.FindById = ({ subscriberId }, { subscriberRepository }) => {
+  return subscriberRepository.findById({ subscriberId });
+};
 module.exports.FindByEmail = ({ email }, { subscriberRepository }) => {
   return subscriberRepository.findByEmail({ email });
 };
