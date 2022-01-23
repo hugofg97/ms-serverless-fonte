@@ -52,7 +52,7 @@ class SessionController {
       if (!pathParameters) throw 400;
       const { tag } = pathParameters;
       const subscriberId = queryStringParameters?.subscriberId ?? "";
-      const limit = queryStringParameters?.limit ?? 5;
+      const limit = queryStringParameters?.limit ?? 10;
       isRequired(tag, 400);
       let isSubscriber = false;
       if (subscriberId) {

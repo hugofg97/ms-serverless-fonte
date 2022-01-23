@@ -5,7 +5,8 @@ const {
   ISubscriber,
 } = require("../../interfaces/ISubscriber");
 const MongoSubscriber = require("../schemas/subscriber");
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
+
 const {ObjectId} = require('mongodb')
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
@@ -17,8 +18,7 @@ module.exports = class extends ISubscriberRepository {
       birthDate,
       password,
       mobilePhone: mobilePhone,
-    });
-
+    })
     return new ISubscriber({
       _id: subscriber._id,
       name: subscriber.name,
@@ -35,7 +35,6 @@ module.exports = class extends ISubscriberRepository {
     });
   }
   async update({ idPg, name, mobilePhone, address, signature, cards, lastName, document, birthDate }) {
-    console.log(cards)
     const updated = await MongoSubscriber.connectDb.updateOne(
       { document: document },
       {

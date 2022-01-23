@@ -13,6 +13,6 @@ const AWS = require("aws-sdk");
 app.use(bodyParser.json({ strict: false })); 
 
 app.get('/oi', async (req,res) => {
-    console.log(oi)
+  
 })
 module.exports.app = app;

@@ -284,4 +284,11 @@ functions:
           parameters:
             paths:
               document: true
+  dayTexts:
+    handler: gatways/routes/profile/main.dayTexts
+    events:
+      - http:
+          path: /phrasesday
+          method: get
+          cors: true
         

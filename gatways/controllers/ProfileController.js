@@ -101,6 +101,40 @@ class ProfileController {
       return handleError(error);
     }
   }
+  async dayTexts() {
+    try {
+      const privacity = [
+        {
+          page: "HOME",
+          text: `Só por hoje não me preocupo`,
+        },
+        {
+          page: "REIKI",
+          text: `Só por hoje não me preocupo`,
+        },
+        {
+          page: "MEDITACAO",
+          text: `Só por hoje não me preocupo`,
+        },
+        {
+          page: "DICAS",
+          text: `Só por hoje não me preocupo`,
+        },
+        {
+          page: "FAVORITOS",
+          text: `Só por hoje não me preocupo`,
+        },
+        {
+          page: "PERFIL",
+          text: `Só por hoje não me preocupo`,
+        },
+      ];
+      return successfullyRead({ data: privacity });
+    } catch (error) {
+      console.log(error);
+      return handleError(error);
+    }
+  }
 
   async update() { }
 }

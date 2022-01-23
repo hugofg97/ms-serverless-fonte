@@ -133,7 +133,6 @@ module.exports = class Subscriber {
       await isRequired(document, 400);
       
       await validateDocument(document);
-      
       const subscriber = await this.service.findByDocument(
         { document },
         {
@@ -142,10 +141,12 @@ module.exports = class Subscriber {
         serviceLocator
         );
         if (!subscriber) throw 400;
+        console.log("_____")
       const result = await this.service.sendMail(subscriber);
 
       return successfullyRead({ data: { codeSecurity: result } });
     } catch (error) {
+      console.log(error)
       return handleError({ error: error });
     }
   }
@@ -317,7 +318,7 @@ module.exports = class Subscriber {
       if (!body) throw 400;
 
       const { idPg, number, holderName, holderDocument, expMonth, expYear, cvv, brand, label, address } = JSON.parse(body);
-
+      console.log(idPg, number, holderName, holderDocument, expMonth, expYear, cvv, brand, label, address)
       isRequired(idPg, 400);
       isRequired(number, 400);
       isRequired(holderName, 400);
@@ -368,15 +369,10 @@ module.exports = class Subscriber {
 
     }
   }
-  async paymentAssignature({ body, pathParameters }) {
+  async paymentAssignature({  pathParameters }) {
     try {
-      if (!body) throw 400;
 
-      const { password } = JSON.parse(body);
-
-      isRequired(password, 400);
       const { document } = pathParameters;
-
       isRequired(document);
       validateDocument(document);
       const existSubscriber = await this.service.findByDocument(
@@ -385,27 +381,15 @@ module.exports = class Subscriber {
         serviceLocator
       );
       if (!existSubscriber) throw 400;
-      const subscriber = await this.service.findByEmail(
-        { email: existSubscriber.email },
-        { FindOneSubscriber: useCaseSubscriber.FindByEmail },
-        serviceLocator
-      );
-      if (!subscriber) throw 400;
-      const comparePassword = await this.service.comparePassword({
-        payloadPassword: password,
-        password: subscriber.password,
-      });
-      if (!comparePassword) throw 400;
-
-      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: subscriber?.idPg });
+        if(existSubscriber.signature.id) throw {error: 409, field: 'Assinatura '}
+      const existsSubscriberInPg = await this.pgService.getCustomerById({ id: existSubscriber?.idPg });
 
       if (!existsSubscriberInPg) throw 404;
-
-      const payment = await this.paymentService.payRecurrency({ idPg: subscriber?.idPg, cards: subscriber?.cards });
+      const payment = await this.paymentService.payRecurrency({ idPg: existSubscriber?.idPg, cards: existSubscriber?.cards });
       if (!payment) throw 404;
-      subscriber.signature = payment;
+      existSubscriber.signature = payment;
       const result = await this.service.updateSubscriber(
-        subscriber,
+        existSubscriber,
         { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
         serviceLocator
       );

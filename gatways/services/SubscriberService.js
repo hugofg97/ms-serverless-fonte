@@ -68,12 +68,12 @@ module.exports = class extends ISubscriberService {
 
   async sendMail({ email }) {
     const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: parseInt(process.env.MAIL_PORT),
+      host: 'email-smtp.sa-east-1.amazonaws.com',
+      port: 587,
       secure: false,
       auth: {
-        user: process.env.MAIL_USER_NAME,
-        pass: process.env.MAIL_PASSWORD,
+        user: 'AKIAZQQHQFY4EG4CAQ6V',
+        pass: 'BMIigJ+UKb9vUyxQS8LLb9ojnmu2Gdh8CeICCyzfkVt6',
       },
       tls: {
         rejectUnauthorized: false,
@@ -82,13 +82,13 @@ module.exports = class extends ISubscriberService {
    
     let code = Math.random().toString(36).substring(7);
     const info = await transporter.sendMail({
-      from: `FONTE APP <${process.env.MAIL_USER_NAME}`,
-      to: email,
+      from: `FONTE APP <suporte@fontereiki.com.br`,
+      to: 'hugo.fersoft@gmail.com',
       subject: "Recuperação de senha",
       text: "Clique no link e recupere sua senha",
       html: `<b>Copie e cole o código no seu app: ${code}</b>`,
     });
-    
+    console.log(info)
 
     return code;
   }

@@ -14,3 +14,7 @@ module.exports.profileImage = async (event, context) => {
   const { body, pathParameters } = event;
   return await profileController.profileImage({ body, pathParameters });
 };
+module.exports.dayTexts = async (event, context) => {
+  const { body, pathParameters } = event;
+  return await profileController.dayTexts({ body, pathParameters });
+};

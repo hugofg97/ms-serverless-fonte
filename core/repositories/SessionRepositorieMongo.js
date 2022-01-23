@@ -41,7 +41,7 @@ module.exports = class extends ISessionRepository {
     });
   }
   async pagination({ page, tag }) {
-    const skip = 5 * (page - 1);
+    const skip = 10 * (page - 1);
 
     const mongoSessions = await MongoSession.connectDb
       .find({
@@ -49,7 +49,7 @@ module.exports = class extends ISessionRepository {
         tag: tag.toUpperCase(),
       })
       .skip(skip)
-      .limit(5);
+      .limit(10);
     return mongoSessions.map((mongoSession) => {
       return new ISession({
         _id: mongoSession._id,

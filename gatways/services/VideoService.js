@@ -14,7 +14,7 @@ module.exports = class extends IVideoService {
   }
 
   async pagination({ page, sessionId }, { Pagination }, serviceLocator) {
-    return await Pagination({ page, sessionId, limit: 5 }, serviceLocator);
+    return await Pagination({ page, sessionId, limit: 10 }, serviceLocator);
   }
   async findBestRanking({ subscriberId }, { RankedVideos }, serviceLocator) {
     let allVideos = await RankedVideos(serviceLocator);
@@ -97,8 +97,8 @@ module.exports = class extends IVideoService {
       }
     });
     if(videosLikeds && videosLikeds.length <= 0) return [];
-    const skip = 5 * (page - 1);
-    let limit = skip + 5;
+    const skip = 10 * (page - 1);
+    let limit = skip + 10;
     if(limit >= videosLikeds.length) {
       limit = videosLikeds.length
     }
