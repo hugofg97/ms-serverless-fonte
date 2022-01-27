@@ -1,13 +1,23 @@
 "user strict";
 
-const mongoose = require("mongoose");
+const dynamoose = require("dynamoose");
 require("./db");
-
-const schema = new mongoose.Schema(
+const uuid = require('uuid');
+const schema = new dynamoose.Schema(
   {
-    sessionId: {
+    _id: {
+      type:String,
+      default: uuid.v4(),
+      hashKey: true
+    },
+    'sessionId': {
       type: String,
       required: true,
+      index: {
+        name:"session-id-index",
+        global:true,
+
+      }
     },
     videoUrl: {
       type: String,
@@ -16,6 +26,10 @@ const schema = new mongoose.Schema(
     videoName: {
       type: String,
       required: true,
+      index: {
+        name: 'video-name-index',
+        global: true
+      }
     },
     videoDescription: {
       type: String,
@@ -31,16 +45,15 @@ const schema = new mongoose.Schema(
     },
     thoseWhoLiked: {
       type: Array,
-      default: [],
     },
     deletedAt: {
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true,saveUnknown:true }
 );
 
-const connectDb = mongoose.model("videosModel", schema);
+const connectDb = dynamoose.model("videosModel", schema);
 
 const modelKeys = [
   "sessionId",

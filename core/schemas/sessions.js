@@ -1,11 +1,21 @@
-const mongoose = require("mongoose");
+const dynamoose = require("dynamoose");
 require("./db");
+const uuid = require('uuid')
 
-const schema = new mongoose.Schema(
+const schema = new dynamoose.Schema(
   {
+    _id: {
+      type:String,
+      hashKey: true,
+      default: uuid.v4()
+    },
     name: {
       type: String,
       required: true,
+      index: {
+        name: 'name-index',
+        global: true
+      }
     },
     description: {
       type: String,
@@ -15,15 +25,19 @@ const schema = new mongoose.Schema(
     tag: {
       type: String,
       required: true,
+      index: {
+        name: 'tag-index',
+        global:true
+      }
     },
     deletedAt: {
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true,saveUnknown:true }
 );
 
-const connectDb = mongoose.model("sessionsModel", schema);
+const connectDb = dynamoose.model("sessionsModel", schema);
 
 module.exports = {
   connectDb,

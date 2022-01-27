@@ -6,12 +6,21 @@ module.exports = class extends IVideoRepository {
   constructor() {
     super();
   }
-  async create() {
-    const mongoVideos = await MongoVideo.connectDb.updateMany({ videoThumb: 'https://vegan.org/wp-content/uploads/2019/10/Meditation-Stock.jpg' });
-    return [];
+  async create({videoName, sessionId, videoDescription, locked, videoThumb,videoUrl}) {
+    const video = await MongoVideo.connectDb.create(
+      {
+        sessionId,
+        videoName,
+        videoThumb,
+        videoDescription,
+        videoUrl,
+        locked
+      }
+    );
+    return video;
   }
   async findAll() {
-    const mongoVideos = await MongoVideo.connectDb.find({ deletedAt: null });
+    const mongoVideos = await MongoVideo.connectDb.scan().where({deletedAt: null}).exec();
     return mongoVideos.map((mongoVideo) => {
       return new IVideo({
         _id: mongoVideo._id,
@@ -57,27 +66,26 @@ module.exports = class extends IVideoRepository {
     });
   }
   async findById({ videoId }) {
-    const mongoVideo = await MongoVideo.connectDb.findOne({
-      _id: videoId,
-      deletedAt: null,
+    const video = await MongoVideo.connectDb.get({
+      '_id': videoId,
     });
-
+    if(!video) return false;
     return new IVideo({
-      _id: mongoVideo._id,
-      sessionId: mongoVideo.sessionId,
-      videoName: mongoVideo.videoName,
-      videoDescription: mongoVideo.videoDescription,
-      videoUrl: mongoVideo.videoUrl,
-      videoThumb: mongoVideo.videoThumb,
-      locked: mongoVideo.locked,
-      thoseWhoLiked: mongoVideo.thoseWhoLiked,
+      _id: video._id,
+      sessionId: video.sessionId,
+      videoName: video.videoName,
+      videoDescription: video.videoDescription,
+      videoUrl: video.videoUrl,
+      videoThumb: video.videoThumb,
+      locked: video.locked,
+      thoseWhoLiked: video.thoseWhoLiked,
     });
   }
   async findBySessionId({ sessionId }) {
-    const mongoVideo = await MongoVideo.connectDb.findOne({
-      sessionId: sessionId,
-      deletedAt: null,
-    });
+    const [mongoVideo] = await MongoVideo.connectDb
+    .query({sessionId: sessionId})
+    .where({deletedAt: null})
+    .exec();
 
     return new IVideo({
       _id: mongoVideo._id,
@@ -91,55 +99,73 @@ module.exports = class extends IVideoRepository {
     });
   }
   async findByName({ videoName }) {
-    const mongoVideo = await MongoVideo.connectDb.findOne({
-      videoName: videoName,
-      deletedAt: null,
-    });
-
+    const [video] = await MongoVideo.connectDb
+    .query('videoName')
+    .eq(videoName)
+    .where({ deletedAt: null})
+    .exec();
+    if(!video) return false;
     return new IVideo({
-      _id: mongoVideo._id,
-      sessionId: mongoVideo.sessionId,
-      videoName: mongoVideo.videoName,
-      videoDescription: mongoVideo.videoDescription,
-      videoUrl: mongoVideo.videoUrl,
-      videoThumb: mongoVideo.videoThumb,
-      locked: mongoVideo.locked,
-      thoseWhoLiked: mongoVideo.thoseWhoLiked,
+      _id: video._id,
+      sessionId: video.sessionId,
+      videoName: video.videoName,
+      videoDescription: video.videoDescription,
+      videoUrl: video.videoUrl,
+      videoThumb: video.videoThumb,
+      locked: video.locked,
+      thoseWhoLiked: video.thoseWhoLiked,
     });
   }
   async liked({ thoseWhoLiked, videoId }) {
-    await MongoVideo.connectDb.updateOne(
+    console.log('>>>>>>>>>>>>>>>>>>>',thoseWhoLiked)
+  const video =  await MongoVideo.connectDb.update(
       {
         _id: videoId,
-        deletedAt: null,
       },
       { thoseWhoLiked: thoseWhoLiked }
     );
 
-    const mongoVideo = await MongoVideo.connectDb.findOne({
-      _id: videoId,
-      deletedAt: null,
-    });
+  console.log(video,'>>>>>>>>>>>>>  ')
 
     return new IVideo({
-      _id: mongoVideo._id,
-      sessionId: mongoVideo.sessionId,
-      videoName: mongoVideo.videoName,
-      videoDescription: mongoVideo.videoDescription,
-      videoUrl: mongoVideo.videoUrl,
-      videoThumb: mongoVideo.videoThumb,
-      locked: mongoVideo.locked,
-      thoseWhoLiked: mongoVideo.thoseWhoLiked,
+      _id: video._id,
+      sessionId: video.sessionId,
+      videoName: video.videoName,
+      videoDescription: video.videoDescription,
+      videoUrl: video.videoUrl,
+      videoThumb: video.videoThumb,
+      locked: video.locked,
+      thoseWhoLiked: video.thoseWhoLiked,
     });
   }
   async pagination({ page, sessionId, limit }) {
-    const skip = 5 * (page - 1);
-    const mongoVideos = await MongoVideo.connectDb
-      .find({ sessionId: sessionId, deletedAt: null })
-      .skip(skip)
-      .limit(parseInt(limit));
+    page = parseInt(page);
+    const skip = page === 1 ? 10 : 10 * (page - 1);
+    console.log(skip, "____", page)
+    const { count } = await MongoVideo.connectDb
+    .query('sessionId')
+    .eq(sessionId)
+    .where({ deletedAt: null })
+    .count()
+    .exec();
+    console.log("contagem :", count);
+    if (page >= 2 && skip >= count) return [];
 
-    return mongoVideos.map((mongoVideo) => {
+    let videos = await MongoVideo.connectDb
+      .query('sessionId')
+      .eq(sessionId)
+      .where({deletedAt: null})
+      .limit(parseInt(skip))
+      .exec();
+      if (page > 1) {
+        const { lastKey } = videos;
+        videos = await MongoVideo.connectDb
+          .query('sessionId')
+          .eq(sessionId)
+          .where({ deletedAt: null })
+          .limit(skip).startAt(lastKey).exec();
+      }
+    return videos.map((mongoVideo) => {
       return new IVideo({
         _id: mongoVideo._id,
         sessionId: mongoVideo.sessionId,

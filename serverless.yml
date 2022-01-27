@@ -16,7 +16,8 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-      - s3:*
+        - dynamodb:*
+        - s3:*
       Resource: '*'
 
 plugins:

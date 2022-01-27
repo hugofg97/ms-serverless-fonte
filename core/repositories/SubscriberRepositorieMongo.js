@@ -5,9 +5,6 @@ const {
   ISubscriber,
 } = require("../../interfaces/ISubscriber");
 const MongoSubscriber = require("../schemas/subscriber");
-const mongoose = require("mongoose");
-
-const {ObjectId} = require('mongodb')
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
     const subscriber = await MongoSubscriber.connectDb.create({
@@ -34,9 +31,10 @@ module.exports = class extends ISubscriberRepository {
       password: "removed",
     });
   }
-  async update({ idPg, name, mobilePhone, address, signature, cards, lastName, document, birthDate }) {
-    const updated = await MongoSubscriber.connectDb.updateOne(
-      { document: document },
+  async update({ idPg, name, mobilePhone, address,email, signature, cards, lastName, document, birthDate }) {
+    console.log( idPg, name, mobilePhone, address,email, signature, cards, lastName, document, birthDate)
+    const subscriber = await MongoSubscriber.connectDb.update(
+      {'document':document},
       {
         idPg,
         name,
@@ -48,9 +46,6 @@ module.exports = class extends ISubscriberRepository {
         cards
       }
     );
-    const subscriber = await MongoSubscriber.connectDb.findOne({
-      document: document,
-    });
     return new ISubscriber({
       _id: subscriber._id,
       idPg: subscriber.idPg,
@@ -68,15 +63,12 @@ module.exports = class extends ISubscriberRepository {
     });
   }
   async setProfileImage({  document, profileImage }) {
-    const updated = await MongoSubscriber.connectDb.updateOne(
-      { document: document },
+    const subscriber = await MongoSubscriber.connectDb.update(
+      { 'document': document },
       {
         profileImage: profileImage,
       }
     );
-    const subscriber = await MongoSubscriber.connectDb.findOne({
-      document: document,
-    });
     return new ISubscriber({
       _id: subscriber._id,
       idPg: subscriber.idPg,
@@ -95,9 +87,7 @@ module.exports = class extends ISubscriberRepository {
   }
 
   async findByDocument({ document }) {
-    const subscriber = await MongoSubscriber.connectDb.findOne({
-      document: document,
-    });
+    const subscriber = await MongoSubscriber.connectDb.get({'document': document})
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -117,10 +107,7 @@ module.exports = class extends ISubscriberRepository {
     else return false;
   }
   async findById({ subscriberId }) {
-    const id = new ObjectId.createFromHexString(subscriberId.trim());
-    const subscriber = await MongoSubscriber.connectDb.findOne({
-      _id: id,
-    });
+    const [subscriber] = await MongoSubscriber.connectDb.query('_id').eq(subscriberId).exec()
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -141,12 +128,8 @@ module.exports = class extends ISubscriberRepository {
   }
 
   async findByEmail({ email }) {
-    const subscriber = await MongoSubscriber.connectDb
-      .findOne({
-        email: email,
-      })
-      .select("+password");
-
+    let  [subscriber] = await MongoSubscriber.connectDb
+      .query('email').eq(email).exec()
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -166,8 +149,8 @@ module.exports = class extends ISubscriberRepository {
     else return false;
   }
   async updatePassword({ document, password }) {
-    const subscriber = await MongoSubscriber.connectDb.updateOne(
-      { document: document },
+    const subscriber = await MongoSubscriber.connectDb.update(
+      { 'document': document },
       {
         password: password,
       }

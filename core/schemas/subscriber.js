@@ -1,8 +1,30 @@
-const mongoose = require("mongoose");
+const dynamoose = require("dynamoose");
+const uuid = require('uuid')
 require("./db");
 
-const schema = new mongoose.Schema(
+const schema = new dynamoose.Schema(
   {
+    "document": {
+      "type": String,
+      "hashKey": true,
+      
+    },
+    "_id": {
+      "type": String,
+      "default": uuid.v4(),
+      index: {
+        "name":"_id-index",
+        global:true
+      }
+  },
+  email: {
+    type: String,
+    required: true,
+    index: {
+      name: 'email-index',
+      global: true
+    }
+  },
     idPg: {
       type: String,
     },
@@ -18,22 +40,15 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    document: {
-      type: String,
-      required: true,
-    },
+ 
     birthDate: {
       type: String,
       required: true,
     },
-    email: {
-      type: String,
-      required: true,
-    },
+
     password: {
       type: String,
       required: true,
-      select: false,
     },
     mobilePhone: {
       type: String,
@@ -56,11 +71,12 @@ const schema = new mongoose.Schema(
     },
     
   },
-  { timestamps: true }
+  { timestamps: true,saveUnknown:true }
 );
 
-const connectDb = mongoose.model("subscriberModel", schema);
+const connectDb = dynamoose.model("subscribersModel", schema);
 
 module.exports = {
   connectDb,
+  
 };

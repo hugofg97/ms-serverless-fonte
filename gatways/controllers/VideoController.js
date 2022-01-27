@@ -21,21 +21,24 @@ class VideoController {
 
       const video = new IVideo(JSON.parse(body));
 
-      // await isRequired(video.videoName, 400);
-      // await isRequired(video.videoDescription, 400);
-      // await isRequired(video.videoThumb, 400);
-      // await isRequired(video.videoUrl, 400);
-      // // await isRequired(video.locked, 400);
-      // await isRequired(video.sessionId, 400);
+      await isRequired(video.videoName, 400);
+      await isRequired(video.videoDescription, 400);
+      await isRequired(video.videoThumb, 400);
+      await isRequired(video.videoUrl, 400);
+      if(video?.locked === undefined || video?.locked === null) {
+        throw 400
+      }
+      await isRequired(video.sessionId, 400);
 
-      // this.service.findByName(
-      //   video,
-      //   {
-      //     FindByName: useCases.Video.FindByName,
-      //   },
-      //   serviceLocator
-      // );
-
+      const existsVideo = await this.service.findByName(
+        video,
+        {
+          FindByName: useCases.Video.FindByName,
+        },
+        serviceLocator
+      );
+      
+      if(existsVideo) throw 400;
       const result = this.service.create(
         video,
         {
@@ -46,6 +49,7 @@ class VideoController {
 
       return successfullyCreated({ data: result });
     } catch (error) {
+      console.log(error)
       return handleError({ error });
     }
   }
@@ -54,8 +58,8 @@ class VideoController {
     try {
       await isRequired(pathParameters.page, 400);
       await isRequired(pathParameters.sessionId, 400);
+      console.log("ASAS",pathParameters.sessionId)
       const subscriberId = queryStringParameters?.subscriberId ?? "";
-      console.log(queryStringParameters?.subscriberId, 'LLLLLLLLLLLLLLLLLL')
       const result = await this.service.pagination(
         pathParameters,
         {
@@ -88,13 +92,15 @@ class VideoController {
       const { subscriberId, videoId } = pathParameters;
       isRequired(subscriberId, 400);
       isRequired(videoId, 400);
+      const videoExists = await this.service.findById({videoId}, serviceLocator);
+      if(!videoExists) throw 404;
       const video = await this.service.like(
         {
           subscriberId: subscriberId,
           videoId: videoId,
         },
         serviceLocator
-      );
+        );
       return successfullyRead({ data: video });
     } catch (error) {
       console.log(error);
@@ -107,6 +113,8 @@ class VideoController {
       const { subscriberId, videoId } = pathParameters;
       isRequired(subscriberId, 400);
       isRequired(videoId, 400);
+      const videoExists = await this.service.findById({videoId}, serviceLocator);
+      if(!videoExists) throw 404;
       const video = await this.service.unlike(
         {
           subscriberId: subscriberId,

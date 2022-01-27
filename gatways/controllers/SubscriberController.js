@@ -47,7 +47,6 @@ module.exports = class Subscriber {
         { FindOneSubscriber: useCaseSubscriber.FindByDocument },
         serviceLocator
       );
-
       if (existsSubscriber) throw { error: 409, field: "Cpf" };
 
       existsSubscriber = await this.service.findByEmail(
@@ -56,7 +55,6 @@ module.exports = class Subscriber {
         serviceLocator
       );
       if (existsSubscriber) throw { error: 409, field: "Email" };
-
       subscriber.password = await this.service.encryptPassword(subscriber);
       subscriber.email = subscriber.email.toLowerCase().trim();
 
@@ -80,7 +78,8 @@ module.exports = class Subscriber {
             name: name.split(' ')[0],
             lastName: name.split(' ')[1],
             document,
-            birthDate: birthdate
+            birthDate: birthdate,
+            email:subscriber.email,
           },
           { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
           serviceLocator
@@ -141,7 +140,6 @@ module.exports = class Subscriber {
         serviceLocator
         );
         if (!subscriber) throw 400;
-        console.log("_____")
       const result = await this.service.sendMail(subscriber);
 
       return successfullyRead({ data: { codeSecurity: result } });
@@ -240,7 +238,7 @@ module.exports = class Subscriber {
       console.log(existSubscriber);
       if (!existSubscriber) throw 404;
       const result = await this.service.updateSubscriber(
-        subscriber,
+        {...existSubscriber,...subscriber},
         { UpdateSubscriber: useCaseSubscriber.UpdateSubscriber },
         serviceLocator
       );
@@ -253,7 +251,6 @@ module.exports = class Subscriber {
 
   async linkAdressBilling({ body, pathParameters }) {
     try {
-      console.log('asas')
       if (!body) throw 400;
       const { idPg, street, zipCode, neighborhood, number, complement, city, state, country } = JSON.parse(body);
       console.log(body)

@@ -1,61 +1,75 @@
 "use strict";
 const { ISessionRepository, ISession } = require("../../interfaces/ISession");
-const MongoSession = require("../schemas/sessions");
+const SessionModel = require("../schemas/sessions");
 
 module.exports = class extends ISessionRepository {
   constructor() {
     super();
   }
   async create({ name, description, tag }) {
-    const mongoSession = await MongoSession.connectDb.create({
+    const session = await SessionModel.connectDb.create({
       name,
       description,
       tag,
     });
-    return mongoSession;
+    return session;
   }
   async findAll({ tag, limit }) {
-    const mongoSessions = await MongoSession.connectDb
-      .find({ deletedAt: null, tag: tag.toUpperCase() })
-      .limit(limit);
-    return mongoSessions.map((mongoSession) => {
+    const sessions = await SessionModel.connectDb
+      .query({ 'tag': tag.toUpperCase() })
+      .where({ deletedAt: null })
+      .limit(limit)
+      .exec();
+    return sessions.map((session) => {
       return new ISession({
-        _id: mongoSession._id,
-        name: mongoSession.name,
-        description: mongoSession.description,
-        tag: mongoSession.tag,
+        _id: session._id,
+        name: session.name,
+        description: session.description,
+        tag: session.tag,
       });
     });
   }
   async findByName(name) {
-    const mongoSession = await MongoSession.connectDb.findOne({
-      name: name,
-      deletedAt: null,
-    });
-    if (!mongoSession) return false;
+    const [session] = await SessionModel.connectDb
+    .query({'name': name})
+    .where({ deletedAt: null })
+    .exec();
+    if (!session) return false;
     return new ISession({
-      _id: mongoSession._id,
-      name: mongoSession.name,
-      description: mongoSession.description,
-      tag: mongoSession.tag,
+      _id: session._id,
+      name: session.name,
+      description: session.description,
+      tag: session.tag,
     });
   }
   async pagination({ page, tag }) {
-    const skip = 10 * (page - 1);
+    page = parseInt(page);
+    const skip = page === 1 ? 10 : 10 * (page - 1);
+    const { count } = await SessionModel.connectDb
+      .query({ tag: tag.toUpperCase() })
+      .where({ deletedAt: null })
+      .count()
+      .exec();
+    if (page >= 2 && skip >= count) return [];
 
-    const mongoSessions = await MongoSession.connectDb
-      .find({
-        deletedAt: null,
-        tag: tag.toUpperCase(),
-      })
-      .skip(skip)
-      .limit(10);
-    return mongoSessions.map((mongoSession) => {
+    let sessions = await SessionModel.connectDb
+      .query({tag: tag.toUpperCase()})
+      .where({ deletedAt: null })
+      .limit(skip)
+      .exec();
+    if (page > 1) {
+      const { lastKey } = sessions;
+      sessions = await SessionModel.connectDb
+        .query({tag: tag.toUpperCase()})
+        .where({ deletedAt: null })
+        .limit(10).startAt(lastKey).exec();
+    }
+    return sessions.map((session) => {
       return new ISession({
-        _id: mongoSession._id,
-        name: mongoSession.name,
-        description: mongoSession.description,
-        tag: mongoSession.tag,
+        _id: session._id,
+        name: session.name,
+        description: session.description,
+        tag: session.tag,
       });
     });
   }

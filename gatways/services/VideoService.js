@@ -8,6 +8,7 @@ module.exports = class extends IVideoService {
   }
 
   async findByName({ videoName }, { FindByName }, serviceLocator) {
+    console.log('aaaaaaaaaas',videoName)
     const videoExists = await FindByName(videoName, serviceLocator);
 
     if (videoExists) throw 409;
@@ -45,8 +46,14 @@ module.exports = class extends IVideoService {
       return video;
     });
   }
+  async findById({videoId}, {videoRepository}) {
+    const video = await videoRepository.findById({videoId});
+    return video;
+
+  }
   async like({ subscriberId, videoId }, { videoRepository }) {
     const video = await videoRepository.findById({ videoId: videoId });
+    console.log("nerjnr")
     if (!video.thoseWhoLiked.includes(subscriberId)) {
       video.thoseWhoLiked.push(subscriberId);
       const likedVideo = await videoRepository.liked({
@@ -56,6 +63,7 @@ module.exports = class extends IVideoService {
       likedVideo.liked = true;
       likedVideo.likes = likedVideo.thoseWhoLiked.length;
       delete video.thoseWhoLiked;
+      console.log(")_____", likedVideo)
       return likedVideo;
     }
     video.liked = true;

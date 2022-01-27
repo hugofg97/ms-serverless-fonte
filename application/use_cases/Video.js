@@ -28,7 +28,7 @@ module.exports.FindAll = ({ videoRepository }) => {
   return videoRepository.findAll();
 };
 module.exports.FindByName = (videoName, { videoRepository }) => {
-  return videoRepository.findByName(videoName);
+  return videoRepository.findByName({videoName});
 };
 module.exports.RankedVideos = ({ videoRepository }) => {
   return videoRepository.rankedVideos();
