@@ -8,7 +8,18 @@ const schema = new dynamoose.Schema(
     _id: {
       type:String,
       default: uuid.v4(),
-      hashKey: true
+      hashKey: true,
+      
+    },
+    orderByLike: {
+      type: String,
+      default: 'order-desc',
+      index: {
+        name:'order-like-index',
+        global:true,
+        rangeKey: 'likes'
+
+      }
     },
     'sessionId': {
       type: String,
@@ -16,7 +27,7 @@ const schema = new dynamoose.Schema(
       index: {
         name:"session-id-index",
         global:true,
-
+        rangeKey: 'createdAt'
       }
     },
     videoUrl: {
@@ -28,7 +39,8 @@ const schema = new dynamoose.Schema(
       required: true,
       index: {
         name: 'video-name-index',
-        global: true
+        global: true,
+        rangeKey: 'createdAt'
       }
     },
     videoDescription: {
@@ -45,6 +57,10 @@ const schema = new dynamoose.Schema(
     },
     thoseWhoLiked: {
       type: Array,
+    },
+    likes: {
+      type: Number,
+      default: 0,
     },
     deletedAt: {
       type: Date,

@@ -12,7 +12,7 @@ module.exports = class extends ISessionService {
   async findByName({ name }, { FindByName }, serviceLocator) {
     const sessionExists = await FindByName(name, serviceLocator);
 
-    if (sessionExists) throw 409;
+    return sessionExists;
   }
 
   async findAll(

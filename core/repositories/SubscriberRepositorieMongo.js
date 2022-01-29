@@ -4,10 +4,10 @@ const {
   ISubscriberRepository,
   ISubscriber,
 } = require("../../interfaces/ISubscriber");
-const MongoSubscriber = require("../schemas/subscriber");
+const SubscriberModel = require("../schemas/subscriber");
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
-    const subscriber = await MongoSubscriber.connectDb.create({
+    const subscriber = await SubscriberModel.connectDb.create({
       name,
       lastName,
       email,
@@ -31,10 +31,10 @@ module.exports = class extends ISubscriberRepository {
       password: "removed",
     });
   }
-  async update({ idPg, name, mobilePhone, address,email, signature, cards, lastName, document, birthDate }) {
-    console.log( idPg, name, mobilePhone, address,email, signature, cards, lastName, document, birthDate)
-    const subscriber = await MongoSubscriber.connectDb.update(
-      {'document':document},
+  async update({ idPg, name, mobilePhone, address, email, signature, cards, lastName, document, birthDate }) {
+    console.log(idPg, name, mobilePhone, address, email, signature, cards, lastName, document, birthDate)
+    const subscriber = await SubscriberModel.connectDb.update(
+      { 'document': document },
       {
         idPg,
         name,
@@ -62,8 +62,8 @@ module.exports = class extends ISubscriberRepository {
       password: "removed",
     });
   }
-  async setProfileImage({  document, profileImage }) {
-    const subscriber = await MongoSubscriber.connectDb.update(
+  async setProfileImage({ document, profileImage }) {
+    const subscriber = await SubscriberModel.connectDb.update(
       { 'document': document },
       {
         profileImage: profileImage,
@@ -87,7 +87,7 @@ module.exports = class extends ISubscriberRepository {
   }
 
   async findByDocument({ document }) {
-    const subscriber = await MongoSubscriber.connectDb.get({'document': document})
+    const subscriber = await SubscriberModel.connectDb.get({ 'document': document })
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -107,7 +107,13 @@ module.exports = class extends ISubscriberRepository {
     else return false;
   }
   async findById({ subscriberId }) {
-    const [subscriber] = await MongoSubscriber.connectDb.query('_id').eq(subscriberId).exec()
+    const [subscriber] = await SubscriberModel.connectDb
+      .query('_id')
+      .eq(subscriberId)
+      .where('deletedAt')
+      .not()
+      .exists()
+      .exec()
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -128,8 +134,13 @@ module.exports = class extends ISubscriberRepository {
   }
 
   async findByEmail({ email }) {
-    let  [subscriber] = await MongoSubscriber.connectDb
-      .query('email').eq(email).exec()
+    let [subscriber] = await SubscriberModel.connectDb
+      .query('email')
+      .eq(email)
+      .where('deletedAt')
+      .not()
+      .exists()
+      .exec()
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -149,7 +160,7 @@ module.exports = class extends ISubscriberRepository {
     else return false;
   }
   async updatePassword({ document, password }) {
-    const subscriber = await MongoSubscriber.connectDb.update(
+    const subscriber = await SubscriberModel.connectDb.update(
       { 'document': document },
       {
         password: password,
@@ -159,9 +170,13 @@ module.exports = class extends ISubscriberRepository {
     else return false;
   }
   async count() {
-    const countSubscribers = await MongoSubscriber.connectDb.count({
-      deletedAt: null,
-    });
+    const countSubscribers = await SubscriberModel.connectDb
+      .scan()
+      .where('deletedAt')
+      .not()
+      .exists()
+      .count()
+      .exec()
     return {
       count: countSubscribers,
       message: "Pessoas estão conectadas à Fonte",

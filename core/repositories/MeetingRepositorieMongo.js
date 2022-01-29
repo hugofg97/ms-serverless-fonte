@@ -1,35 +1,39 @@
 "use strict";
 const { IMeeting, IMeetingRepository } = require("../../interfaces/IMeeting");
-const MongoMeeting = require("../schemas/meeting");
+const MeetingModel = require("../schemas/meeting");
 
 module.exports = class extends IMeetingRepository {
   constructor() {
     super();
   }
   async create({ type, subscriberId, date, hour, period, status }) {
-    const mongoMeeting = await MongoMeeting.connectDb.create({
+    console.log(date)
+    const meeting = await MeetingModel.connectDb.create({
       type,
       subscriberId,
-      date,
+      date: date.toString(),
       hour,
       period,
       status,
     });
     return new IMeeting({
-      _id: mongoMeeting._id,
-      type: mongoMeeting.type,
-      subscriberId: mongoMeeting.subscriberId,
-      date: mongoMeeting.date,
-      hour: mongoMeeting.hour,
-      period: mongoMeeting.period,
-      status: mongoMeeting.status,
+      _id: meeting._id,
+      type: meeting.type,
+      subscriberId: meeting.subscriberId,
+      date: meeting.date,
+      hour: meeting.hour,
+      period: meeting.period,
+      status: meeting.status,
     });
   }
   async FindAllMeeting(limit = 5) {
-    const mongoMeeting = await MongoMeeting.connectDb
-      .find({ deletedAt: null })
-      .limit(limit);
-    return mongoMeeting.map((meeting) => {
+    const meetings = await MeetingModel.connectDb
+      .scan()
+      .where('deletedAt')
+      .not()
+      .exists()
+      .limit(limit).exec();
+    return meetings.map((meeting) => {
       return new IMeeting({
         _id: meeting._id,
         type: meeting.type,
@@ -42,14 +46,18 @@ module.exports = class extends IMeetingRepository {
     });
   }
   async findPerSubscriberId({ subscriberId }) {
-    const mongoMeeting = await MongoMeeting.connectDb.find({
-      subscriberId: subscriberId,
-      deletedAt: null,
-    });
+    console.log(subscriberId)
+    const meetings = await MeetingModel.connectDb
+      .query('subscriberId')
+      .eq(subscriberId)
+      .where('deletedAt')
+      .not()
+      .exists()
+      .exec();
+    console.log(meetings)
+    if (!meetings) return false;
 
-    if (!mongoMeeting) return false;
-
-    return mongoMeeting.map((meeting) => {
+    return meetings.map((meeting) => {
       return new IMeeting({
         _id: meeting._id,
         type: meeting.type,
@@ -62,46 +70,46 @@ module.exports = class extends IMeetingRepository {
     });
   }
   async delete({ meetingId }) {
-    const mongoMeeting = await MongoMeeting.connectDb.updateOne(
+    const meeting = await MeetingModel.connectDb.update(
       {
-        _id: meetingId,
-        deletedAt: null,
+        _id: meetingId
       },
       { status: "canceled", deletedAt: Date.now() }
     );
 
-    if (!mongoMeeting)
+    if (!meeting)
       return { information_of_success: "Consulta já estava cancelada" };
     return { update_success: "Consulta cancelada com sucesso" };
   }
   async findOnePerSubscriber({ type, subscriberId }) {
-    const mongoMeeting = await MongoMeeting.connectDb.findOne({
-      subscriberId: subscriberId,
-      type: type,
-      deletedAt: null,
-    });
-
-    if (!mongoMeeting) return false;
+    const [meeting] = await MeetingModel.connectDb
+      .query('subscriberId')
+      .eq(subscriberId)
+      .and()
+      .where('type')
+      .eq(type)
+      .exec();
+    if (!meeting) return false;
     return new IMeeting({
-      _id: mongoMeeting._id,
-      type: mongoMeeting.type,
-      subscriberId: mongoMeeting.subscriberId,
-      date: mongoMeeting.date,
-      hour: mongoMeeting.hour,
-      period: mongoMeeting.period,
-      status: mongoMeeting.status,
+      _id: meeting._id,
+      type: meeting.type,
+      subscriberId: meeting.subscriberId,
+      date: meeting.date,
+      hour: meeting.hour,
+      period: meeting.period,
+      status: meeting.status,
     });
   }
   async pagination(page) {
     const skip = 5 * (page - 1);
 
-    const mongoMeeting = await MongoMeeting.connectDb
+    const meeting = await MeetingModel.connectDb
       .find({
         deletedAt: null,
       })
       .skip(skip)
       .limit(5);
-    return mongoMeeting.map((meeting) => {
+    return meeting.map((meeting) => {
       return new IMeeting({
         _id: meeting._id,
         type: meeting.type,

@@ -25,14 +25,14 @@ class SessionController {
       isRequired(session.description, 400);
       isRequired(session.tag, 400);
 
-      await this.service.findByName(
+      const existSession = await this.service.findByName(
         session,
         {
           FindByName: useCases.Session.FindByName,
         },
         serviceLocator
       );
-
+      if (existSession) throw { error: 409, field: `Sessão : ${existSession?.name}` }
       const result = await this.service.create(
         session,
         {
@@ -58,9 +58,8 @@ class SessionController {
       if (subscriberId) {
 
         const subscriber = await this.subscriberService.findById({ subscriberId: subscriberId }, { FindById: useCases.Subscriber.FindById }, serviceLocator);
-        console.log(subscriber?.signature?.active)
 
-        if (subscriber?.signature  && subscriber?.signature?.active) {
+        if (subscriber?.signature && subscriber?.signature?.active) {
           isSubscriber = true;
         }
       }
@@ -106,7 +105,7 @@ class SessionController {
       if (subscriberId) {
 
         const subscriber = await this.subscriberService.findById({ subscriberId: subscriberId }, { FindById: useCases.Subscriber.FindById }, serviceLocator);
-        if (subscriber?.signature  && subscriber?.signature?.active) {
+        if (subscriber?.signature && subscriber?.signature?.active) {
           isSubscriber = true;
         }
       }

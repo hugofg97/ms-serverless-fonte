@@ -12,12 +12,20 @@ module.exports = class extends ISessionRepository {
       description,
       tag,
     });
-    return session;
+    return new ISession({
+      _id: session._id,
+      name: session.name,
+      description: session.description,
+      tag: session.tag,
+    });;
   }
   async findAll({ tag, limit }) {
     const sessions = await SessionModel.connectDb
-      .query({ 'tag': tag.toUpperCase() })
-      .where({ deletedAt: null })
+      .query('tag')
+      .eq(tag.toUpperCase())
+      .where('deletedAt')
+      .not()
+      .exists()
       .limit(limit)
       .exec();
     return sessions.map((session) => {
@@ -31,8 +39,11 @@ module.exports = class extends ISessionRepository {
   }
   async findByName(name) {
     const [session] = await SessionModel.connectDb
-    .query({'name': name})
-    .where({ deletedAt: null })
+    .query('name')
+    .eq(name)
+    .where('deletedAt')
+    .not()
+    .exists()
     .exec();
     if (!session) return false;
     return new ISession({
@@ -46,22 +57,31 @@ module.exports = class extends ISessionRepository {
     page = parseInt(page);
     const skip = page === 1 ? 10 : 10 * (page - 1);
     const { count } = await SessionModel.connectDb
-      .query({ tag: tag.toUpperCase() })
-      .where({ deletedAt: null })
+      .query('tag')
+      .eq(tag.toUpperCase())
+      .where('deletedAt')
+      .not()
+      .exists()
       .count()
       .exec();
     if (page >= 2 && skip >= count) return [];
 
     let sessions = await SessionModel.connectDb
-      .query({tag: tag.toUpperCase()})
-      .where({ deletedAt: null })
+      .query('tag')
+      .eq(tag.toUpperCase())
+      .where('deletedAt')
+      .not()
+      .exists()
       .limit(skip)
       .exec();
     if (page > 1) {
       const { lastKey } = sessions;
       sessions = await SessionModel.connectDb
-        .query({tag: tag.toUpperCase()})
-        .where({ deletedAt: null })
+        .query('tag')
+        .eq(tag.toUpperCase())
+        .where('deletedAt')
+        .not()
+        .exists()
         .limit(10).startAt(lastKey).exec();
     }
     return sessions.map((session) => {

@@ -3,15 +3,12 @@ const { IVideoService } = require("../../interfaces/IVideo");
 module.exports = class extends IVideoService {
   async create(video, { Create }, serviceLocator) {
     const newVideo = await Create(video, serviceLocator);
-
     return newVideo;
   }
 
   async findByName({ videoName }, { FindByName }, serviceLocator) {
-    console.log('aaaaaaaaaas',videoName)
     const videoExists = await FindByName(videoName, serviceLocator);
-
-    if (videoExists) throw 409;
+    return videoExists;
   }
 
   async pagination({ page, sessionId }, { Pagination }, serviceLocator) {
@@ -53,7 +50,6 @@ module.exports = class extends IVideoService {
   }
   async like({ subscriberId, videoId }, { videoRepository }) {
     const video = await videoRepository.findById({ videoId: videoId });
-    console.log("nerjnr")
     if (!video.thoseWhoLiked.includes(subscriberId)) {
       video.thoseWhoLiked.push(subscriberId);
       const likedVideo = await videoRepository.liked({
@@ -63,7 +59,6 @@ module.exports = class extends IVideoService {
       likedVideo.liked = true;
       likedVideo.likes = likedVideo.thoseWhoLiked.length;
       delete video.thoseWhoLiked;
-      console.log(")_____", likedVideo)
       return likedVideo;
     }
     video.liked = true;

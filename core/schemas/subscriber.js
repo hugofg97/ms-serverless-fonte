@@ -14,7 +14,8 @@ const schema = new dynamoose.Schema(
       "default": uuid.v4(),
       index: {
         "name":"_id-index",
-        global:true
+        global:true,
+        rangeKey: 'createdAt'
       }
   },
   email: {
@@ -22,7 +23,8 @@ const schema = new dynamoose.Schema(
     required: true,
     index: {
       name: 'email-index',
-      global: true
+      global: true,
+      rangeKey: 'createdAt'
     }
   },
     idPg: {

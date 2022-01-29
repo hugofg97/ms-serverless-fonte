@@ -40,14 +40,13 @@ class ProfileController {
 
       const s3 = new AWS.S3({
         params: {
-          Bucket: process.env.AWS_BUCKET_NAME
+          Bucket: process.env.AWS_BUCKET_NAME_PICTURES
         },
       });
-
       const data = {
         Key: `${process.env.AWS_PASTE_PROFILE_IMAGES}/${document}.jpeg`,
         Body: bufferImg,
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: process.env.AWS_BUCKET_NAME_PICTURES,
         ContentEncoding: 'image/jpeg',
         ACL: "public-read"
       }

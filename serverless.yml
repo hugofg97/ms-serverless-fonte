@@ -9,16 +9,15 @@ provider:
   lambdaHashingVersion: "20201221"
   timeout: 30
   region: sa-east-1
-  environment:
-    bucketName: microservice-streaming-d-serverlessdeploymentbuck-89h0oescohwn
-    imageUploadBucket: media-fonte
-    region: sa-east-1
+ 
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
         - s3:*
       Resource: '*'
+  stage: ${env:ENVIRONMENT}
+
 
 plugins:
   - serverless-dotenv-plugin # Allow set global parameters in env.{enviroment}

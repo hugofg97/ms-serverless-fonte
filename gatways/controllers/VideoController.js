@@ -37,16 +37,14 @@ class VideoController {
         },
         serviceLocator
       );
-      
-      if(existsVideo) throw 400;
-      const result = this.service.create(
+      if(existsVideo) throw {error: 409, field: `Video : ${existsVideo?.videoName}`};
+      const result = await this.service.create(
         video,
         {
           Create: useCases.Video.Create,
         },
         serviceLocator
       );
-
       return successfullyCreated({ data: result });
     } catch (error) {
       console.log(error)
@@ -58,7 +56,6 @@ class VideoController {
     try {
       await isRequired(pathParameters.page, 400);
       await isRequired(pathParameters.sessionId, 400);
-      console.log("ASAS",pathParameters.sessionId)
       const subscriberId = queryStringParameters?.subscriberId ?? "";
       const result = await this.service.pagination(
         pathParameters,
@@ -82,7 +79,6 @@ class VideoController {
       }
       return successfullyRead({ data: videos });
     } catch (error) {
-      console.log(error);
       return handleError(error);
     }
   }

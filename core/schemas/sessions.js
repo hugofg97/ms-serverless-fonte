@@ -7,14 +7,16 @@ const schema = new dynamoose.Schema(
     _id: {
       type:String,
       hashKey: true,
-      default: uuid.v4()
+      default: uuid.v4(),
+      
     },
     name: {
       type: String,
       required: true,
       index: {
         name: 'name-index',
-        global: true
+        global: true,
+        rangeKey: 'createdAt'
       }
     },
     description: {
@@ -27,7 +29,8 @@ const schema = new dynamoose.Schema(
       required: true,
       index: {
         name: 'tag-index',
-        global:true
+        global:true,
+        rangeKey: 'createdAt'
       }
     },
     deletedAt: {

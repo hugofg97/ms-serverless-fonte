@@ -56,16 +56,16 @@ class TherapyController {
       const { FindAll } = useCases.Therapy;
       const result = await this.service.findAll({ FindAll }, serviceLocator);
 
-      const therapy = await this.service.checkMeetingInTherapy(
-        {
-          FindAll: useCases.Meeting.FindMeetingsOfTheSubscriber,
-          subscriberId: subscriberId,
-          therapys: result,
-        },
-        serviceLocator
-      );
+      // const therapy = await this.service.checkMeetingInTherapy(
+      //   {
+      //     FindAll: useCases.Meeting.FindMeetingsOfTheSubscriber,
+      //     subscriberId: subscriberId,
+      //     therapys: result,
+      //   },
+      //   serviceLocator
+      // );
 
-      return successfullyRead({ data: therapy });
+      return successfullyRead({ data: result });
     } catch (error) {
       console.log(error);
       return handleError({ error });

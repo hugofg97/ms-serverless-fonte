@@ -24,7 +24,7 @@ class MeetingController {
       if (type != "reiki" && type != "radiestesia") throw 400;
 
       const meeting = new IMeeting(JSON.parse(body));
-
+      console.log("_AS__AS_",meeting)
       await this.service.checkMeetingExists(
         meeting,
         {
@@ -53,6 +53,7 @@ class MeetingController {
 
       return successfullyCreated({ data: result });
     } catch (error) {
+      console.log(error)
       return handleError({ error });
     }
   }
