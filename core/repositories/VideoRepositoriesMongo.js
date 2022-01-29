@@ -1,14 +1,19 @@
 "use strict";
 const { IVideoRepository, IVideo } = require("../../interfaces/IVideo");
 const VideoModel = require("../schemas/videos");
+const uuid = require('uuid');
+const bcrypt = require('bcrypt')
 
 module.exports = class extends IVideoRepository {
   constructor() {
     super();
   }
   async create({ videoName, sessionId, videoDescription, locked, videoThumb, videoUrl }) {
+    const salt = bcrypt.genSaltSync(10);
+    const crypt =  bcrypt.hashSync(videoName+videoUrl, salt).substring(15,20).replace(/\./g, '-').replace(/\//g, '-');
     const video = await VideoModel.connectDb.create(
       {
+        _id: `${uuid.v1()}-${crypt}`,
         sessionId,
         videoName,
         videoThumb,

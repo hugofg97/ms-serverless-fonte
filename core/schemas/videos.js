@@ -7,13 +7,11 @@ const schema = new dynamoose.Schema(
   {
     _id: {
       type:String,
-      default: uuid.v4(),
-      hashKey: true,
-      
+      hashKey: true, 
     },
     orderByLike: {
       type: String,
-      default: 'order-desc',
+      default: `order-desc${uuid.v1()}`,
       index: {
         name:'order-like-index',
         global:true,
@@ -53,10 +51,11 @@ const schema = new dynamoose.Schema(
     },
     locked: {
       type: Boolean,
-      required: true,
+      default: false
     },
     thoseWhoLiked: {
       type: Array,
+      default: []
     },
     likes: {
       type: Number,
@@ -69,7 +68,9 @@ const schema = new dynamoose.Schema(
   { timestamps: true,saveUnknown:true }
 );
 
-const connectDb = dynamoose.model("videosModel", schema);
+const model = process.env.DYNAMO_TABLE_VIDEOS;
+
+const connectDb = dynamoose.model(model, schema);
 
 const modelKeys = [
   "sessionId",

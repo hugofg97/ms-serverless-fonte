@@ -1,13 +1,17 @@
 "use strict";
 const { ITherapyRepository, ITherapy } = require("../../interfaces/ITherapy");
 const TherapyModel = require("../schemas/therapy");
-
+const uuid = require('uuid');
+const bcrypt = require('bcrypt')
 module.exports = class extends ITherapyRepository {
   constructor() {
     super();
   }
   async create({ name, description, imageUrl }) {
+    const salt = bcrypt.genSaltSync(10);
+    const crypt =  bcrypt.hashSync(name+description, salt).substring(15,20);
     const therapy = await TherapyModel.connectDb.create({
+      _id: `${uuid.v1()}-${crypt}`,
       name,
       description,
       imageUrl,

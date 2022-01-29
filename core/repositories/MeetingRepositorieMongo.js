@@ -1,14 +1,17 @@
 "use strict";
 const { IMeeting, IMeetingRepository } = require("../../interfaces/IMeeting");
 const MeetingModel = require("../schemas/meeting");
-
+const uuid = require('uuid');
+const bcrypt = require('bcrypt')
 module.exports = class extends IMeetingRepository {
   constructor() {
     super();
   }
   async create({ type, subscriberId, date, hour, period, status }) {
-    console.log(date)
+    const salt = bcrypt.genSaltSync(10);
+    const crypt =  bcrypt.hashSync(type+subscriberId, salt).substring(15,20).replace(/\./g, '-').replace(/\//g, '-');;
     const meeting = await MeetingModel.connectDb.create({
+      _id: `${uuid.v1()}-${crypt}`,
       type,
       subscriberId,
       date: date.toString(),

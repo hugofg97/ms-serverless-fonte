@@ -1,13 +1,17 @@
 "use strict";
 const { ISessionRepository, ISession } = require("../../interfaces/ISession");
 const SessionModel = require("../schemas/sessions");
-
+const uuid = require('uuid');
+const bcrypt = require('bcrypt')
 module.exports = class extends ISessionRepository {
   constructor() {
     super();
   }
   async create({ name, description, tag }) {
+    const salt = bcrypt.genSaltSync(10);
+    const crypt =  bcrypt.hashSync(name+description+tag, salt).substring(15,20);
     const session = await SessionModel.connectDb.create({
+      _id: `${uuid.v1()}-${crypt}`,
       name,
       description,
       tag,

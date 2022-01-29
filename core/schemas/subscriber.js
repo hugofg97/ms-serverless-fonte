@@ -1,17 +1,13 @@
 const dynamoose = require("dynamoose");
-const uuid = require('uuid')
-require("./db");
 
 const schema = new dynamoose.Schema(
   {
     "document": {
       "type": String,
       "hashKey": true,
-      
     },
     "_id": {
       "type": String,
-      "default": uuid.v4(),
       index: {
         "name":"_id-index",
         global:true,
@@ -75,8 +71,8 @@ const schema = new dynamoose.Schema(
   },
   { timestamps: true,saveUnknown:true }
 );
-
-const connectDb = dynamoose.model("subscribersModel", schema);
+const model = process.env.DYNAMO_TABLE_SUBSCRIBER;
+const connectDb = dynamoose.model(model, schema);
 
 module.exports = {
   connectDb,

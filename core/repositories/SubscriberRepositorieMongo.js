@@ -5,9 +5,14 @@ const {
   ISubscriber,
 } = require("../../interfaces/ISubscriber");
 const SubscriberModel = require("../schemas/subscriber");
+const uuid = require('uuid');
+const bcrypt = require('bcrypt')
 module.exports = class extends ISubscriberRepository {
   async create({ name, lastName, document, mobilePhone, email, birthDate, password }) {
+    const salt = bcrypt.genSaltSync(10);
+    const crypt =  bcrypt.hashSync(name+document, salt).substring(15,20).replace(/\./g, '-').replace(/\//g, '-');;
     const subscriber = await SubscriberModel.connectDb.create({
+      _id: `${uuid.v1()}-${crypt}`,
       name,
       lastName,
       email,

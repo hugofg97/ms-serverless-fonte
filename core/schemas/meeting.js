@@ -7,8 +7,6 @@ const schema = new dynamoose.Schema(
     _id: {
       type: String,
       hashKey:true,
-      default: uuid.v4(),
-      
     },
     type: {
       type: String,
@@ -69,8 +67,9 @@ const schema = new dynamoose.Schema(
   },
   { timestamps: true, saveUnknown:true }
 );
+const model = process.env.DYNAMO_TABLE_MEETING;
 
-const connectDb = dynamoose.model("meetingModel", schema);
+const connectDb = dynamoose.model(model, schema);
 
 module.exports = {
   connectDb,

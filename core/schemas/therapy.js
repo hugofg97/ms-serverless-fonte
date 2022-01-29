@@ -6,9 +6,7 @@ const schema = new dynamoose.Schema(
   {
     _id: {
       type:String,
-      hashKey:true,
-      default: uuid.v4(),
-      
+      hashKey:true,   
     },
     name: {
       type: String,
@@ -34,8 +32,9 @@ const schema = new dynamoose.Schema(
   },
   { timestamps: true, saveUnknown:true }
 );
+const model = process.env.DYNAMO_TABLE_THERAPY;
 
-const connectDb = dynamoose.model("therapyModel", schema);
+const connectDb = dynamoose.model(model, schema);
 
 module.exports = {
   connectDb,
