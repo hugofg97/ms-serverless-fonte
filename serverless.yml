@@ -25,14 +25,14 @@ plugins:
 
 functions:
   createSession:
-    handler: gatways/routes/session/main.create
+    handler: gatways/sessions/main.create
     events:
       - http:
           path: /session/create
           method: post
           cors: true
   findAllSessions:
-    handler: gatways/routes/session/main.findAllSession
+    handler: gatways/sessions/main.findAllSession
     events:
       - http:
           path: /session/{tag}/findall
@@ -43,7 +43,7 @@ functions:
             paths:
               tag: true
   paginationSessions:
-    handler: gatways/routes/session/main.pagination
+    handler: gatways/sessions/main.pagination
     events:
       - http:
           path: /session/pagination/{tag}/{page}
@@ -55,21 +55,21 @@ functions:
               page: true
               tag: true
   findAllTags:
-    handler: gatways/routes/session/main.findAllTags
+    handler: gatways/sessions/main.findAllTags
     events:
       - http:
           path: /session/tags
           method: get
           cors: true
   createVideo:
-    handler: gatways/routes/video/main.create
+    handler: gatways/videos/main.create
     events:
       - http:
           path: /video/create
           method: post
           cors: true
   paginationVideo:
-    handler: gatways/routes/video/main.pagination
+    handler: gatways/videos/main.pagination
     events:
       - http:
           path: /video/pagination/{page}/session/{sessionId}
@@ -81,7 +81,7 @@ functions:
               page: true
               sessionId: true
   likeVideo:
-    handler: gatways/routes/video/main.like
+    handler: gatways/videos/main.like
     events:
       - http:
           path: /video/like/{videoId}/subscriber/{subscriberId}
@@ -93,7 +93,7 @@ functions:
               videoId: true
               subscriberId: true
   unlikeVideo:
-    handler: gatways/routes/video/main.unlike
+    handler: gatways/videos/main.unlike
     events:
       - http:
           path: /video/unlike/{videoId}/subscriber/{subscriberId}
@@ -105,7 +105,7 @@ functions:
               videoId: true
               subscriberId: true
   likedBySubscriber:
-    handler: gatways/routes/video/main.likedBySubscriber
+    handler: gatways/videos/main.likedBySubscriber
     events:
       - http:
           path: /video/liked/{subscriberId}
@@ -116,14 +116,14 @@ functions:
             paths:
               subscriberId: true
   findBestRankVideos:
-    handler: gatways/routes/video/main.findBestRankVideos
+    handler: gatways/videos/main.findBestRankVideos
     events:
       - http:
           path: /video/bestranking
           method: get
           cors: true
   forgotPassword:
-    handler: gatways/routes/subscriber/main.forgotPassword
+    handler: gatways/subscriber/main.forgotPassword
     events:
       - http:
           path: /subscriber/forgotpassword/document/{document}
@@ -134,7 +134,7 @@ functions:
             paths:
               document: true
   updatePassword:
-    handler: gatways/routes/subscriber/main.updatePassword
+    handler: gatways/subscriber/main.updatePassword
     events:
       - http:
           path: /subscriber/updatepassword/document/{document}
@@ -145,49 +145,49 @@ functions:
             paths:
               document: true
   loginSubscriber:
-    handler: gatways/routes/subscriber/main.login
+    handler: gatways/subscriber/main.login
     events:
       - http:
           path: /subscriber/login
           method: post
           cors: true
   findSubscriberByDocument:
-    handler: gatways/routes/subscriber/main.findByDocument
+    handler: gatways/subscriber/main.findByDocument
     events:
       - http:
           path: /subscriber/find/{document}
           method: get
           cors: true
   updateSubscriber:
-    handler: gatways/routes/subscriber/main.update
+    handler: gatways/subscriber/main.update
     events:
       - http:
           path: /subscriber/update/{document}
           method: put
           cors: true
   countSubscribers:
-    handler: gatways/routes/subscriber/main.countSubscribers
+    handler: gatways/subscriber/main.countSubscribers
     events:
       - http:
           path: /subscriber/count
           method: get
           cors: true
   createSubscriber:
-    handler: gatways/routes/subscriber/main.createSubscriber
+    handler: gatways/subscriber/main.createSubscriber
     events:
       - http:
           path: /subscriber/create
           method: post
           cors: true
   createMeeting:
-    handler: gatways/routes/meeting/main.createMeeting
+    handler: gatways/meeting/main.createMeeting
     events:
       - http:
           path: /meeting/create
           method: post
           cors: true
   findMeetingsOfTheSubscriber:
-    handler: gatways/routes/meeting/main.findMeetingsOfTheSubscriber
+    handler: gatways/meeting/main.findMeetingsOfTheSubscriber
     events:
       - http:
           path: /meeting/findall/subscriber/{subscriberId}
@@ -198,7 +198,7 @@ functions:
             paths:
               subscriberId: true
   deleteMeeting:
-    handler: gatways/routes/meeting/main.deleteMeeting
+    handler: gatways/meeting/main.deleteMeeting
     events:
       - http:
           path: /meeting/delete/{meetingId}
@@ -209,35 +209,35 @@ functions:
             paths:
               meetingId: true
   createTherapy:
-    handler: gatways/routes/therapy/main.create
+    handler: gatways/therapy/main.create
     events:
       - http:
           path: /therapy/create
           method: post
           cors: true
   findAllTherapy:
-    handler: gatways/routes/therapy/main.findAll
+    handler: gatways/therapy/main.findAll
     events:
       - http:
           path: /therapy/findall
           method: get
           cors: true
   support:
-    handler: gatways/routes/profile/main.support
+    handler: gatways/profile/main.support
     events:
       - http:
           path: /app/support
           method: get
           cors: true
   privacity:
-    handler: gatways/routes/profile/main.privacity
+    handler: gatways/profile/main.privacity
     events:
       - http:
           path: /app/privacity
           method: get
           cors: true
   uploadImage:
-    handler: gatways/routes/profile/main.profileImage
+    handler: gatways/profile/main.profileImage
     events:
       - http:
           path: /profile/image/{document}
@@ -247,14 +247,14 @@ functions:
             paths:
               document: true
   paymentAssignature:
-    handler: gatways/routes/payment/main.payment
+    handler: gatways/payment/main.payment
     events:
       - http:
           path: /payment/assignature
           method: post
           cors: true
   linkAddressBilling:
-    handler: gatways/routes/subscriber/main.linkAddressBilling
+    handler: gatways/subscriber/main.linkAddressBilling
     events:
       - http:
           path: /subscriber/address/{document}
@@ -265,7 +265,7 @@ functions:
               document: true
         
   linkBillingCard:
-    handler: gatways/routes/subscriber/main.linkBillingCard
+    handler: gatways/subscriber/main.linkBillingCard
     events:
       - http:
           path: /subscriber/card/{document}
@@ -275,7 +275,7 @@ functions:
             paths:
               document: true
   paymentSignature:
-    handler: gatways/routes/subscriber/main.paymentAssignature
+    handler: gatways/subscriber/main.paymentAssignature
     events:
       - http:
           path: /subscriber/signature/{document}
@@ -285,10 +285,17 @@ functions:
             paths:
               document: true
   dayTexts:
-    handler: gatways/routes/profile/main.dayTexts
+    handler: gatways/profile/main.dayTexts
     events:
       - http:
           path: /phrasesday
+          method: get
+          cors: true
+  getSignature:
+    handler: gatways/subscriber/main.getSignature
+    events:
+      - http:
+          path: /signature
           method: get
           cors: true
         

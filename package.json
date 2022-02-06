@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "offline": "sls offline",
-    "predeploy": "rm -rf node_modules/bcrypt && npm install --platform=linux --archx64 --target=5.0.1 bcrypt",
+    "predeploy": "rm -rf node_modules/bcrypt && npm install --platform=linux --archx64 bcrypt",
     "deploydev": "serverless deploy --env development -v",
     "deployprd": "serverless deploy --env production -v",
     "postdeploy": "rm -rf node_modules/bcrypt && npm install bcrypt"
@@ -38,6 +38,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
+    "serverless-add-api-key": "^4.2.1",
     "serverless-offline": "^8.0.0"
   }
 }
