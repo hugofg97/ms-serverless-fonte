@@ -7,7 +7,6 @@ module.exports.create = async (event, context) => {
   return await sessionController.create({ body, pathParameters });
 };
 module.exports.findAllSession = async (event, context, ba) => {
-  console.log(event, context, ba)
   const { body, pathParameters, queryStringParameters } = event;
   return await sessionController.findAll({
     body,

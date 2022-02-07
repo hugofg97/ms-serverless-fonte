@@ -15,7 +15,6 @@ class HomeController {
 
   async loadHomeSessions({ pathParameters, queryStringParameters }) {
     try {
-      console.log('entro')
       if (!pathParameters) throw 400;
       const isSubscriber = await this.subscriberService.signatureIsActive({...queryStringParameters});
       const sessions = await this.sessionService.findAll({...pathParameters, ...queryStringParameters, isSubscriber});

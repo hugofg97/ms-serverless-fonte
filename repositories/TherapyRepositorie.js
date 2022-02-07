@@ -44,7 +44,6 @@ module.exports = class ITherapyRepository {
     .query('name')
     .eq(name)
     .exec();
-    console.log(therapy)
     if (!therapy) return false;
     return new ITherapy({
       _id: therapy._id,

@@ -47,7 +47,6 @@ module.exports = class  IMeetingRepository {
     });
   }
   async findPerSubscriberId({ subscriberId }) {
-    console.log(subscriberId)
     const meetings = await MeetingModel.connectDb
       .query('subscriberId')
       .eq(subscriberId)
@@ -55,7 +54,6 @@ module.exports = class  IMeetingRepository {
       .not()
       .exists()
       .exec();
-    console.log(meetings)
     if (!meetings) return false;
 
     return meetings.map((meeting) => {

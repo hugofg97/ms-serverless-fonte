@@ -19,9 +19,9 @@ module.exports = class PagarmeRepository {
   async createBillingCard({card}) {
     try {
   
-      const path = createPath({ entity: this.entity, param: `${idPg}/cards` });
+      console.log(card)
+      const path = createPath({ entity: this.entity, param: `${card?.idPg}/cards` });
       const { data } = await pagarmeConnect.post(path, card);
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>', data)
     
       return data;
     } catch (err) {
@@ -33,7 +33,7 @@ module.exports = class PagarmeRepository {
     try {
       const path = createPath({ entity: this.entity, param: `${idPg}/cards/${idCard}` });
       const { data } = await pagarmeConnect.delete(path);
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>', data)
+
     
       return data;
     } catch (err) {
@@ -52,10 +52,11 @@ module.exports = class PagarmeRepository {
       throw 500;
     }
   };
-  async findCustomerById({ id }) {
+  async findCustomerById({ idPg }) {
     try {
-      const path = createPath({ entity: this.entity, param: id });
+      const path = createPath({ entity: this.entity, param: idPg });
       const { data } = await pagarmeConnect.get(path);
+      console.log(data)
       return data;
     } catch (err) {
       // console.log(err.response.data)
@@ -77,6 +78,26 @@ module.exports = class PagarmeRepository {
     try {
       const path = createPath({ entity: 'subscriptions' });
       const { data } = await pagarmeConnect.post(path, card);
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async cancelSignature({ subscription_id }) {
+    try {
+      const path = createPath({ entity: 'subscriptions', param: subscription_id });
+      const { data } = await pagarmeConnect.delete(path, {
+        "cancel_pending_invoices": true
+   });
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+  async payCharge({ charge_id }) {
+    try {
+      const path = createPath({ entity: 'charges', param: `${charge_id}/retry` });
+      const { data } = await pagarmeConnect.post(path);
       return data;
     } catch (err) {
       throw err;

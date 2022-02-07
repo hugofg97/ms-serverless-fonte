@@ -57,3 +57,7 @@ module.exports.getSignature = async (event, context) => {
   const { body, pathParameters,queryStringParameters } = event;
   return await subscriberController.getSignature({ body, pathParameters, queryStringParameters });
 };
+module.exports.cancelSignature = async (event, context) => {
+  const { body, pathParameters,queryStringParameters } = event;
+  return await subscriberController.cancelSignature({ body, pathParameters, queryStringParameters });
+};

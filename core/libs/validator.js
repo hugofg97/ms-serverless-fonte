@@ -6,6 +6,7 @@ module.exports = {
   },
   isRequired(value, error) {
     if (!value) throw error;
+
     return value;
   },
   fildExists(value, defaultValue) {
@@ -14,16 +15,16 @@ module.exports = {
   },
 
   validateDocument: (document) => {
+    
     if(!document) throw 400;
     var numbers, digit, soma, i, result, digitEqual;
     digitEqual = 1;
     if (document.length < 11) throw 400;
-
     for (i = 0; i < document.length - 1; i++)
-      if (document.charAt(i) != document.charAt(i + 1)) {
-        digitEqual = 0;
-        break;
-      }
+    if (document.charAt(i) != document.charAt(i + 1)) {
+      digitEqual = 0;
+      break;
+    }
     if (!digitEqual) {
       numbers = document.substring(0, 9);
       digit = document.substring(9);

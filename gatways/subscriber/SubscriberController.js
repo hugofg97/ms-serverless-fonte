@@ -100,8 +100,7 @@ module.exports = class Subscriber {
   async linkBillingCard({ body, pathParameters }) {
     try {
       if (!body) throw 400;
-
-      const createCard = this.service.createBillingCard({card: JSON.parse(body), ...pathParameters});
+      const createCard = await this.service.createBillingCard({card: {...JSON.parse(body), ... pathParameters}});
       return successfullyRead({ data: createCard });
 
     } catch (error) {
@@ -114,6 +113,32 @@ module.exports = class Subscriber {
     try {
 
       const result = await this.service.paymentAssignature({...pathParameters});
+
+      return successfullyRead({ data: result });
+
+    } catch (error) {
+      console.log(error)
+      return handleError({ error: error });
+
+    }
+  }
+  async cancelSignature({ pathParameters }) {
+    try {
+
+      const result = await this.service.cancelSignature({...pathParameters});
+
+      return successfullyRead({ data: result });
+
+    } catch (error) {
+      console.log(error)
+      return handleError({ error: error });
+
+    }
+  }
+  async payCharge({ pathParameters }) {
+    try {
+
+      const result = await this.service.payCharge({...pathParameters});
 
       return successfullyRead({ data: result });
 

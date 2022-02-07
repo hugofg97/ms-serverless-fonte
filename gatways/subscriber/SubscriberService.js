@@ -3,7 +3,7 @@ const serviceLocator = require("../../core/config/serviceLocator");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { ISignatureCustomer, ISignatureFindInvoiceByCustomerId, ISignatureFindChargeByCustomerId, ISignatureCustomerBillingCard, ISignatureDeleteBillingCardCustomer, ISignaturePayRecurrency } = require("../signature/ISignature");
+const { ISignatureCustomer, ISignatureFindInvoiceByCustomerId, ISignatureFindChargeByCustomerId, ISignatureCustomerBillingCard, ISignatureDeleteBillingCardCustomer, ISignaturePayRecurrency, ISignatureGetCustomerById, ISignatureCancelSignature, ISignaturePayCharge } = require("../signature/ISignature");
 module.exports = class ISubscriberService {
 
   async findById({subscriberId}, {FindById}) {
@@ -44,7 +44,6 @@ module.exports = class ISubscriberService {
 
 
   async createSubscriber({subscriber}) {
-    console.log("entro aki", subscriber)
     const newSubscriber = new ISubscriber(subscriber);
     if(await new ISubscriberFindByDocument(newSubscriber).find(serviceLocator)) throw { error: 409, field: "CPF" };;
     if(await new ISubscriberFindByEmail(newSubscriber).find(serviceLocator)) throw { error: 409, field: "Email" };
@@ -53,7 +52,6 @@ module.exports = class ISubscriberService {
     let createdSubscriber = await newSubscriber.create(serviceLocator);
     let createSubscriberPagarme;
     if(createdSubscriber) {
-      console.log(serviceLocator);
       createSubscriberPagarme = await new ISignatureCustomer(createdSubscriber).create(serviceLocator);
     }
     if(createSubscriberPagarme) {
@@ -85,10 +83,11 @@ module.exports = class ISubscriberService {
 
 
   async createBillingCard({card}) {
+
     const cardModel = new ISignatureCustomerBillingCard(card);
     const existsSubscriber = await new ISubscriberFindByDocument(card).find(serviceLocator);
     if (!existsSubscriber) throw 404;
-    const existsSubscriberInPagarme = await new ISignatureFindInvoiceByCustomerId(card).find(serviceLocator);
+    const existsSubscriberInPagarme = await new ISignatureGetCustomerById(card).find(serviceLocator);
     if (!existsSubscriberInPagarme) throw 404;
     let newCard = {};
     if(existsSubscriberInPagarme?.cards) {
@@ -96,9 +95,8 @@ module.exports = class ISubscriberService {
       newCard = await cardModel.create(serviceLocator);
     }
     else {
-      newCard = cardModel.create(serviceLocator);
+      newCard = await  cardModel.create(serviceLocator);
     }
-    
     if(!newCard) throw 500;
     delete newCard.customer;
     existsSubscriber.cards = newCard?.id;
@@ -108,9 +106,9 @@ module.exports = class ISubscriberService {
   async paymentAssignature({document}) {
     const existsSubscriber = await new ISubscriberFindByDocument({document}).find(serviceLocator);
     if (!existsSubscriber) throw 404;
-    if (existsSubscriber.signature.id) throw {error: 409, field: 'Usuário já possui assinatura ativa '}
+    if (existsSubscriber.signature) throw {error: 409, field: 'Usuário já possui assinatura ativa '}
 
-    const existsCustomerInPagarme = await new ISignatureFindChargeByCustomerId(existsSubscriber).find(serviceLocator);
+    const existsCustomerInPagarme = await new ISignatureGetCustomerById(existsSubscriber).find(serviceLocator);
     if (!existsCustomerInPagarme) throw 404;
 
     const payment = await new ISignaturePayRecurrency({idPg: existsSubscriber?.idPg, cardId: existsSubscriber?.cards}).create(serviceLocator);
@@ -118,6 +116,25 @@ module.exports = class ISubscriberService {
     existsSubscriber.signature = payment?.id;
     const updatedSubscriber = await new ISubscriber(existsSubscriber).update(serviceLocator);
     return updatedSubscriber;
+  }
+  async cancelSignature({document}) {
+    const existsSubscriber = await new ISubscriberFindByDocument({document}).find(serviceLocator);
+    if (!existsSubscriber) throw 404;
+    if (!existsSubscriber.signature) throw {error: 409, field: 'Usuário não possui assinatura'};
+
+    const existsCustomerInPagarme = await new ISignatureGetCustomerById(existsSubscriber).find(serviceLocator);
+    if (!existsCustomerInPagarme) throw 404;
+
+    const cancel = await new ISignatureCancelSignature({signature: existsSubscriber?.signature }).delete(serviceLocator);
+    console.log(cancel)
+    existsSubscriber.signature = '';
+    const updatedSubscriber = await new ISubscriber(existsSubscriber).update(serviceLocator);
+    return updatedSubscriber;
+  }
+  async payCharge({chargeId}) {
+    const pay = await new ISignaturePayCharge({chargeId}).create(serviceLocator);
+    if(!pay) throw 500;
+    return pay;
   }
 
 
@@ -203,7 +220,6 @@ module.exports = class ISubscriberService {
     const chargesBySubscriber = await new ISignatureFindChargeByCustomerId(existsSubscriber).find(serviceLocator);
     
     if(!chargesBySubscriber) return false;
-    console.log(chargesBySubscriber?.status,'_________')
  
     if(chargesBySubscriber?.status === 'paid')  return true ;
     else return false;

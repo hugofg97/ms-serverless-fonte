@@ -35,7 +35,6 @@ module.exports = class ISubscriberRepository {
     });
   }
   async update({ idPg, name, mobilePhone, signature, cards, lastName, document, birthDate }) {
-    console.log(idPg, name, mobilePhone, signature, cards, lastName, document, birthDate )
     const subscriber = await SubscriberModel.connectDb.update(
       { 'document': document },
       {
@@ -102,7 +101,7 @@ module.exports = class ISubscriberRepository {
         cards: subscriber?.cards ?? '',
         signature: subscriber?.signature ?? '',
         password: "removed",
-      },'');
+      });
     else return false;
   }
   async findById({ subscriberId }) {

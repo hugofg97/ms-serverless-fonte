@@ -67,7 +67,7 @@ class ISignatureCustomerBillingCard {
     }){
         this.idPg = isRequired(idPg, 400);
         this.number = isRequired(number, 400);
-        this.idCard = isRequire(holderName, 400);
+        this.holder_name = isRequired(holderName, 400);
         this.holder_document = validateDocument(holderDocument);
         this.exp_month = isRequired(parseInt(expMonth), 400);
         this.exp_year = isRequired(parseInt(expYear), 400);
@@ -108,9 +108,9 @@ class ISignatureGetCustomers {
 
 class ISignatureGetCustomerById {
     constructor({
-        id
+        idPg
     }) {
-        this.id = isRequired(id, 400);
+        this.idPg = isRequired(idPg, 400);
     }
     async find({signatureRepository}) {
         return await signatureRepository.findCustomerById({...this});
@@ -124,10 +124,10 @@ class ISignaturePayRecurrency {
         plan = "plan_m2Vz6eqhQFMBJNZ7",
         paymentMethod = 'credit_card'
     }) {
-        this.idPg = isRequired(idPg, 400);
-        this.cardId = isRequired(cardId, 400);
-        this.plan = isRequired(plan, 400);
-        this.paymentMethod = isRequired(paymentMethod, 400);
+        this.customer_id = isRequired(idPg, 400);
+        this.card_id = isRequired(cardId, 400);
+        this.plan_id = isRequired(plan, 400);
+        this.payment_method = isRequired(paymentMethod, 400);
     }
     async create({signatureRepository}) {
         return await signatureRepository.payRecurrency({card: this});
@@ -169,8 +169,32 @@ class ISignatureFindChargeByCustomerId{
         return await signatureRepository.findChargesByCustomerId({...this});
     }
 }
+class ISignatureCancelSignature{
+    constructor({
+       signature
+    }) {
+        this.subscription_id = isRequired(signature, 400);
+  
+    }
+    async delete({signatureRepository}) {
+        return await signatureRepository.cancelSignature({...this});
+    }
+}
+class ISignaturePayCharge{
+    constructor({
+       chargeId
+    }) {
+        this.charge_id = isRequired(chargeId, 400);
+  
+    }
+    async create({signatureRepository}) {
+        return await signatureRepository.payCharge({...this});
+    }
+}
 
 module.exports = {
+    ISignaturePayCharge,
+    ISignatureCancelSignature,
     ISignatureFindCustomerByEmail,
     ISignatureFindCustomerByDocument,
     ISignatureFindChargeByCustomerId,

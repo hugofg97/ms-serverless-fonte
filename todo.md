@@ -4,13 +4,14 @@
 - [x] Melhorar classe Pagarme
 - [x] criar classe signature
 - [x] Verificar assinatura
-- [] Authenticação
-- [] Frases serem compartilhadas
+- [x] Cancerlar assinatura
+- [x] Pagar fatura atrasada
 - [] Editar cartão
-- [] Pagar fatura atrasada
-- [] Cancerlar assinatura
+
 
 ###### Menos importante
+- [] Authenticação
+- [] Frases serem compartilhadas
 - [] Verificar email
 - [] Retaguarda
 - [] Cortar foto

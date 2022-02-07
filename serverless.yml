@@ -298,4 +298,14 @@ functions:
           path: /signature
           method: get
           cors: true
+  cancelSignature:
+    handler: gatways/subscriber/main.cancelSignature
+    events:
+      - http:
+          path: /subscriber/signature/{document}
+          method: delete
+          cors: true
+          parameters:
+            paths:
+              document: true
         
