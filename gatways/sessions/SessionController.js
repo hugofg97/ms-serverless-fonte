@@ -15,7 +15,6 @@ class SessionController {
   async create({ body }) {
     try {
       if (!body) throw 400;
-
       const result = await this.sessionService.create({session: JSON.parse(body)}
       );
 
@@ -25,16 +24,15 @@ class SessionController {
       return handleError({ error });
     }
   }
-  async findAll({ pathParameters, queryStringParameters }) {
+  async findAll({ userSession, pathParameters }) {
     try {
       if (!pathParameters) throw 400;
       let isSubscriber = false;
-      isSubscriber = await this.subscriberService.signatureIsActive({...queryStringParameters});
-      
+      isSubscriber = await this.subscriberService.signatureIsActive({...userSession});
       const result = await this.sessionService.findAll(
         {
          ...pathParameters,
-         ...queryStringParameters,
+         ...userSession,
           isSubscriber: isSubscriber,
         }
       );
@@ -56,16 +54,15 @@ class SessionController {
     }
   }
 
-  async pagination({ pathParameters, queryStringParameters }) {
+  async pagination({ pathParameters, userSession }) {
     try {
       if(!pathParameters) throw 400;
 
       let isSubscriber = false;
 
-      isSubscriber = await this.subscriberService.signatureIsActive({...queryStringParameters});
-      
+      isSubscriber = await this.subscriberService.signatureIsActive({...userSession});
       const result = await this.sessionService.pagination(
-        { ...pathParameters, ...queryStringParameters, isSubscriber}
+        { ...pathParameters, ...userSession, isSubscriber}
       );
       const count = await this.sessionService.countPerTag({...pathParameters});
       return successfullyRead({ data: result, count: count });

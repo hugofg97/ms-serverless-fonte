@@ -1,16 +1,15 @@
+const { AuthMiddleware } = require("../../core/config/auth");
 const TherapyController = require("./TherapyController");
 
 const therapyController = new TherapyController();
 
 module.exports.create = async (event) => {
-  const { body, pathParameters } = event;
-  return await therapyController.create({ body, pathParameters });
+  const authenticatePayload = await AuthMiddleware(event);
+  if (!authenticatePayload) return fobridenError;
+  return await therapyController.create(authenticatePayload);
 };
 module.exports.findAll = async (event) => {
-  const { body, pathParameters, queryStringParameters } = event;
-  return await therapyController.findAll({
-    body,
-    pathParameters,
-    queryStringParameters,
-  });
+  const authenticatePayload = await AuthMiddleware(event);
+  if (!authenticatePayload) return fobridenError;
+  return await therapyController.findAll(authenticatePayload);
 };

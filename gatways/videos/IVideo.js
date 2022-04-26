@@ -20,7 +20,7 @@ class IVideo {
     this.videoDescription = isRequired(videoDescription, 400);
     this.videoUrl = isRequired(videoUrl, 400);
     this.videoThumb = isRequired(videoThumb, 400);
-    this.locked = locked === undefined || locked === null? false: true;
+    this.locked = !locked ? false: true;
     this.thoseWhoLiked = thoseWhoLiked;
     this.likes = likes ?? 0
   }

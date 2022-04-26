@@ -25,11 +25,6 @@ class ITherapyFindByName {
   }
 }
 class ITherapyFindAll {
-  constructor({ subscriberId }) {
-
-    this.subscriberId = isRequired(subscriberId,400 );
-
-  }
   async find({therapyRepository}) {
     return await therapyRepository.findAll()
   }

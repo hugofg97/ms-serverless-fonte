@@ -29,12 +29,13 @@ module.exports = class ISubscriberRepository {
       birthDate: subscriber.birthDate,
       mobilePhone: subscriber.mobilePhone,
       profileImage: null,
-      cards: subscriber?.cards ?? '',
+      cards: subscriber?.cards ?? [],
       signature: subscriber?.signature ?? '',
       password: "removed",
     });
   }
   async update({ idPg, name, mobilePhone, signature, cards, lastName, document, birthDate }) {
+    console.log("______________:")
     const subscriber = await SubscriberModel.connectDb.update(
       { 'document': document },
       {
@@ -57,7 +58,7 @@ module.exports = class ISubscriberRepository {
       birthDate: subscriber.birthDate,
       mobilePhone: subscriber?.mobilePhone ?? null,
       profileImage: subscriber?.profileImage ?? null,
-      cards: subscriber?.cards ?? '',
+      cards: subscriber?.cards ?? [],
       signature: subscriber?.signature ?? '',
       password: "removed",
     });
@@ -79,7 +80,7 @@ module.exports = class ISubscriberRepository {
       birthDate: subscriber.birthDate,
       mobilePhone: subscriber?.mobilePhone ?? null,
       profileImage: subscriber?.profileImage ?? null,
-      cards: subscriber?.cards ?? '',
+      cards: subscriber?.cards ?? [],
       signature: subscriber?.signature ?? '',
       password: "removed",
     });
@@ -98,7 +99,7 @@ module.exports = class ISubscriberRepository {
         birthDate: subscriber.birthDate,
         mobilePhone: subscriber?.mobilePhone ?? null,
         profileImage: subscriber?.profileImage ?? null,
-        cards: subscriber?.cards ?? '',
+        cards: subscriber?.cards ?? [],
         signature: subscriber?.signature ?? '',
         password: "removed",
       });
@@ -123,7 +124,7 @@ module.exports = class ISubscriberRepository {
         birthDate: subscriber.birthDate,
         mobilePhone: subscriber?.mobilePhone ?? null,
         profileImage: subscriber?.profileImage ?? null,
-        cards: subscriber?.cards ?? '',
+        cards: subscriber?.cards ?? [],
         signature: subscriber?.signature ?? '',
         password: "removed",
       });
@@ -149,7 +150,7 @@ module.exports = class ISubscriberRepository {
         document: subscriber.document,
         birthDate: subscriber.birthDate,
         mobilePhone: subscriber?.mobilePhone ?? null,
-        cards: subscriber?.cards ?? '',
+        cards: subscriber?.cards ?? [],
         signature: subscriber?.signature ?? '',
         password: subscriber.password,
       });

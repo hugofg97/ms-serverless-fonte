@@ -22,6 +22,19 @@ module.exports = class PagarmeRepository {
       console.log(card)
       const path = createPath({ entity: this.entity, param: `${card?.idPg}/cards` });
       const { data } = await pagarmeConnect.post(path, card);
+    console.log(data)
+      return data;
+    } catch (err) {
+    console.log(err)
+      throw 500;
+    }
+  }
+  async updateBillingCard({card}) {
+    try {
+      const path = createPath({ entity: 'customers', param: `${card?.idPg}/cards/${card?.cardId}` });
+      delete card.cardId;
+      delete card.idPg;
+      const { data } = await pagarmeConnect.put(path, card);
     
       return data;
     } catch (err) {
@@ -56,7 +69,7 @@ module.exports = class PagarmeRepository {
     try {
       const path = createPath({ entity: this.entity, param: idPg });
       const { data } = await pagarmeConnect.get(path);
-      console.log(data)
+      // console.log(data)
       return data;
     } catch (err) {
       // console.log(err.response.data)
@@ -111,10 +124,9 @@ module.exports = class PagarmeRepository {
  
       const signature = data.data[0]?? null;
       if(signature?.id) {
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<', signature)
         delete signature.customer;
         delete signature.current_cycle;
-        signature.card_four_digits =signature.card.card_four_digits;
-        delete signature.card;
         delete signature.plan;
         delete signature.items;
       }
@@ -145,6 +157,32 @@ module.exports = class PagarmeRepository {
       throw err;
     }
   }
+  async updateBillingCardSignature({ signature, cardId }) {
+    try {
+      const query = `subscriptions/${signature}/card`
+
+      const { data } = await pagarmeConnect.patch(query, {'card_id': cardId});
+      console.log(data)
+      return data;
+    } catch (err) {
+      
+      throw err;
+    }
+  }
+  async updateBillingCardCharge(card) {
+    try {
+      const query = `charges/${card?.chargeId}/payment-method`
+      delete card.chargeId;
+      delete card.options
+      // console.log('__________________',card)
+      const { data } = await pagarmeConnect.patch(query, { 'update_subscription': true,'payment_method':'credit_card','credit_card': card,'operation_type':'auth_only','installments':1,'statement_descriptor':'Fonte assinatura'});
+
+      return data;
+    } catch (err) {
+      
+      throw err;
+    }
+  }
   async findChargesByCustomerId({  idPg }) {
     try {
      
@@ -152,7 +190,6 @@ module.exports = class PagarmeRepository {
       const { data } = await pagarmeConnect.get(query);
       const charges = data?.data[0] ?? null;
       if(charges?.id) {
-        delete charges.card;
         delete charges.plan;
         delete charges.items;
         delete charges.customer;
@@ -162,7 +199,36 @@ module.exports = class PagarmeRepository {
  
       return charges;
     } catch (err) {
-      console.log(err)
+      
+      throw err;
+    }
+  }
+  async updateDateBillingSubscription({  signature, date }) {
+    try {
+     
+      const query = `/subscriptions/${signature}/billing-date`
+      const { data } = await pagarmeConnect.patch(query, {"next_billing_at": date});
+      return data;
+      
+    } catch (err) {
+      
+      throw err;
+    }
+  }
+  async getCardsByCustomer({ idPg }) {
+    try {
+     
+      const query = `customers/${idPg}/cards`
+      const { data } = await pagarmeConnect.get(query);
+      console.log(data);
+      return data.data.map(el => ({
+        id: el.id,
+        brand: el.brand,
+        lastFourDigits: el.last_four_digits
+      }));
+      
+    } catch (err) {
+      
       throw err;
     }
   }

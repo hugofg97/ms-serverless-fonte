@@ -53,7 +53,7 @@ const schema = new dynamoose.Schema(
       required:true,
     },
     cards: {
-      type: String,
+      type: Array,
     },
     signature: {
       type: String,

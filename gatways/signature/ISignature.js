@@ -54,6 +54,7 @@ class ISignatureFindCustomerByDocument {
 
 class ISignatureCustomerBillingCard {
     constructor({
+        cardId,
         idPg,
         number,
         holderName,
@@ -65,6 +66,17 @@ class ISignatureCustomerBillingCard {
         label,
         address 
     }){
+        console.log(idPg)
+        console.log(number)
+        console.log(holderName)
+        console.log(holderDocument)
+        console.log(expMonth)
+        console.log(expYear)
+        console.log(cvv)
+        console.log(brand)
+        console.log(label)
+        console.log(address)
+        this.cardId = cardId ?? ''
         this.idPg = isRequired(idPg, 400);
         this.number = isRequired(number, 400);
         this.holder_name = isRequired(holderName, 400);
@@ -83,6 +95,9 @@ class ISignatureCustomerBillingCard {
     async create({signatureRepository}) {
         return await signatureRepository.createBillingCard({card:this});
     }
+    async update({signatureRepository}) {
+        return await signatureRepository.updateBillingCard({card:this});
+    }
 }
 
 class ISignatureDeleteBillingCardCustomer {
@@ -90,6 +105,8 @@ class ISignatureDeleteBillingCardCustomer {
         idPg,
         idCard
     }){
+        console.log(idPg)
+        console.log(idCard)
         this.idPg = isRequired(idPg, 400);
         this.idCard = isRequired(idCard, 400);
        
@@ -182,7 +199,7 @@ class ISignatureCancelSignature{
 }
 class ISignaturePayCharge{
     constructor({
-       chargeId
+       chargeId,
     }) {
         this.charge_id = isRequired(chargeId, 400);
   
@@ -192,7 +209,79 @@ class ISignaturePayCharge{
     }
 }
 
+class ISignatureEditBillingCharge{
+    constructor({
+       chargeId,
+       number,
+       holderName,
+       holderDocument,
+       expMonth,
+       expYear,
+       cvv,
+       brand,
+       label,
+       address 
+    }) {
+        this.chargeId = isRequired(chargeId, 400);
+        this.number = isRequired(number, 400);
+        this.holder_name = isRequired(holderName, 400);
+        this.holder_document = validateDocument(holderDocument);
+        this.exp_month = isRequired(parseInt(expMonth), 400);
+        this.exp_year = isRequired(parseInt(expYear), 400);
+        this.cvv = isRequired(cvv, 400);
+        this.brand = isRequired(brand, 400);
+        this.label = isRequired(label, 400);
+        this.billing_address =  {...address, country: 'BR'},
+        this.options = {
+          "verify_card": true
+      }
+  
+    }
+    async update({signatureRepository}) {
+        return await signatureRepository.updateBillingCardCharge({...this});
+    }
+}
+class ISignatureEditBillingSignature{
+    constructor({
+        cardId,
+        signature
+    }) {
+        this.cardId = isRequired(cardId, 400);
+        this.signature = isRequired(signature, 400);
+    }
+    async update({signatureRepository}) {
+        return await signatureRepository.updateBillingCardSignature({...this});
+    }
+}
+class ISignatureUpdateBillingDate{
+    constructor({
+        signature,
+        date
+    }) {
+        this.signature = isRequired(signature, 400);
+        this.date = isRequired(date, 400);
+    }
+    async update({signatureRepository}) {
+        return await signatureRepository.updateDateBillingSubscription({...this});
+    }
+}
+class ISignatureFindCards {
+    constructor({
+      idPg
+    }) {
+      this.idPg = isRequired(idPg);
+    }
+  
+    async find({signatureRepository}) {
+        return await signatureRepository.getCardsByCustomer({...this});
+  
+    } 
+  }
+
 module.exports = {
+    ISignatureFindCards,
+    ISignatureEditBillingSignature,
+    ISignatureEditBillingCharge,
     ISignaturePayCharge,
     ISignatureCancelSignature,
     ISignatureFindCustomerByEmail,
@@ -205,5 +294,6 @@ module.exports = {
     ISignatureCustomerBillingCard,
     ISignatureDeleteBillingCardCustomer,
     ISignatureGetCustomerById,
-    ISignatureGetCustomers
+    ISignatureGetCustomers,
+    ISignatureUpdateBillingDate
 }

@@ -17,6 +17,14 @@ class ISubscriber {
     cards,
     signature,
   }) {
+    console.log(name,
+      lastName,
+      email,
+      document,
+      birthDate,
+      password,
+      mobilePhone,
+      profileImage)
     this._id = _id??'';
     this.idPg = idPg??'';
     this.name = isRequired(name, 400);
@@ -27,17 +35,20 @@ class ISubscriber {
     this.password = isRequired(password, 400);
     this.mobilePhone = isRequired(mobilePhone, 400);
     this.profileImage = profileImage??'';
-    this.cards = cards??'';
+    this.cards = cards??[];
     this.signature = signature??'';
   }
 
   async create({subscriberRepository}) {
    return subscriberRepository.create({...this});
   }
+
   async update({subscriberRepository}) {
+    console.log("CARDS")
    return subscriberRepository.update({...this});
   }
 }
+
 class ISubscriberFindByDocument {
   constructor(
     { document },
@@ -49,6 +60,7 @@ class ISubscriberFindByDocument {
    return subscriberRepository.findByDocument({...this});
   }
 }
+
 class ISubscriberFindById {
   constructor(
     { subscriberId },
@@ -57,7 +69,6 @@ class ISubscriberFindById {
   }
 
   async find({subscriberRepository}) {
-    console.log(this)
    return subscriberRepository.findById({...this});
   }
 }

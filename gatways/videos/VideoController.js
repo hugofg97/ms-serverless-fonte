@@ -23,11 +23,11 @@ class VideoController {
     }
   }
 
-  async pagination({ pathParameters, queryStringParameters }) {
+  async pagination({ pathParameters, userSession }) {
     try {
-      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...queryStringParameters });
+      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...userSession });
       let videos = await this.videoService.pagination({
-        paginationSettings: { ...pathParameters, ...queryStringParameters, unlock: signatureIsActive },
+        paginationSettings: { ...pathParameters, ...userSession, subscriberId: userSession._id, unlock: signatureIsActive },
       }
       );
       return successfullyRead({ data: videos });
@@ -36,33 +36,32 @@ class VideoController {
       return handleError(error);
     }
   }
-  async like({ pathParameters }) {
+  async like({ userSession, pathParameters }) {
     try {
       if (!pathParameters) throw 400;
-      const video = await this.videoService.like({ ...pathParameters });
+      const video = await this.videoService.like({ ...userSession, ...pathParameters });
       return successfullyRead({ data: video });
     } catch (error) {
       console.log(error);
       return handleError({ error });
     }
   }
-  async unlike({ pathParameters }) {
+  async unlike({ userSession, pathParameters }) {
     try {
       if (!pathParameters) throw 400;
-      const video = await this.videoService.unlike(pathParameters);
+      const video = await this.videoService.unlike({ ...userSession, ...pathParameters });
       return successfullyRead({ data: video });
     } catch (error) {
       console.log(error);
       return handleError({ error });
     }
   }
-  async findLikedsBySubscriber({ pathParameters, queryStringParameters }) {
+  async findLikedsBySubscriber({ userSession, queryStringParameters }) {
     try {
-      if (!pathParameters) throw 400;
-      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...pathParameters });
+      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...userSession });
       const { videos, count } = await this.videoService.findLikedsBySubscriber(
         {
-          ...pathParameters,
+          ...userSession,
           ...queryStringParameters,
           unlock: signatureIsActive
         }
@@ -73,12 +72,12 @@ class VideoController {
       return handleError({ error });
     }
   }
-  async findBestRanking({ queryStringParameters }) {
+  async findBestRanking({ userSession }) {
     try {
 
-      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...queryStringParameters });
+      const signatureIsActive = await this.subscriberService.signatureIsActive({ ...userSession });
       const rankedVideos = await this.videoService.findBestRanking(
-        { ...queryStringParameters, unlock: signatureIsActive },
+        { ...userSession, unlock: signatureIsActive },
       );
 
       return successfullyRead({ data: rankedVideos });

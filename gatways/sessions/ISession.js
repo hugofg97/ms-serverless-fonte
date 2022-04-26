@@ -19,6 +19,7 @@ class ISession {
 class ISessionFindByName {
   constructor({ name }) {
     this.name = isRequired(name, 400);
+    console.log(name)
   }
 
   async find({sessionRepository}) {

@@ -16,7 +16,7 @@ provider:
         - dynamodb:*
         - s3:*
       Resource: '*'
-  stage: ${env:ENVIRONMENT}
+  stage: dev
 
 
 plugins:
@@ -84,37 +84,32 @@ functions:
     handler: gatways/videos/main.like
     events:
       - http:
-          path: /video/like/{videoId}/subscriber/{subscriberId}
+          path: /video/like/{videoId}
           method: put
           cors: true
           request:
           parameters:
             paths:
               videoId: true
-              subscriberId: true
   unlikeVideo:
     handler: gatways/videos/main.unlike
     events:
       - http:
-          path: /video/unlike/{videoId}/subscriber/{subscriberId}
+          path: /video/unlike/{videoId}
           method: put
           cors: true
           request:
           parameters:
             paths:
               videoId: true
-              subscriberId: true
   likedBySubscriber:
     handler: gatways/videos/main.likedBySubscriber
     events:
       - http:
-          path: /video/liked/{subscriberId}
+          path: /video/liked
           method: get
           cors: true
           request:
-          parameters:
-            paths:
-              subscriberId: true
   findBestRankVideos:
     handler: gatways/videos/main.findBestRankVideos
     events:
@@ -155,14 +150,14 @@ functions:
     handler: gatways/subscriber/main.findByDocument
     events:
       - http:
-          path: /subscriber/find/{document}
+          path: /subscriber/find
           method: get
           cors: true
   updateSubscriber:
     handler: gatways/subscriber/main.update
     events:
       - http:
-          path: /subscriber/update/{document}
+          path: /subscriber/update
           method: put
           cors: true
   countSubscribers:
@@ -190,7 +185,7 @@ functions:
     handler: gatways/meeting/main.findMeetingsOfTheSubscriber
     events:
       - http:
-          path: /meeting/findall/subscriber/{subscriberId}
+          path: /meeting/findall
           method: get
           cors: true
           request:
@@ -240,7 +235,7 @@ functions:
     handler: gatways/profile/main.profileImage
     events:
       - http:
-          path: /profile/image/{document}
+          path: /profile/image
           method: post
           cors: true
           parameters:
@@ -268,22 +263,16 @@ functions:
     handler: gatways/subscriber/main.linkBillingCard
     events:
       - http:
-          path: /subscriber/card/{document}
+          path: /subscriber/card
           method: post
           cors: true
-          parameters:
-            paths:
-              document: true
   paymentSignature:
     handler: gatways/subscriber/main.paymentAssignature
     events:
       - http:
-          path: /subscriber/signature/{document}
+          path: /subscriber/signature
           method: post
           cors: true
-          parameters:
-            paths:
-              document: true
   dayTexts:
     handler: gatways/profile/main.dayTexts
     events:
@@ -302,10 +291,42 @@ functions:
     handler: gatways/subscriber/main.cancelSignature
     events:
       - http:
-          path: /subscriber/signature/{document}
+          path: /subscriber/signature
           method: delete
           cors: true
-          parameters:
-            paths:
-              document: true
-        
+  emailVerification:
+    handler: gatways/subscriber/main.emailVerification
+    events:
+      - http:
+          path: /subscriber/emailverification/{email}
+          method: get
+          cors: true
+  checkAccountExists:
+    handler: gatways/subscriber/main.checkAccountExists
+    events:
+      - http:
+          path: /subscriber/account
+          method: post
+          cors: true
+  updateBillingCard:
+    handler: gatways/subscriber/main.updateBillingCard
+    events:
+      - http:
+          path: /subscriber/card
+          method: patch
+          cors: true
+  updateBillingDate:
+    handler: gatways/subscriber/main.updateBillingDate
+    events:
+      - http:
+          path: /signature/date
+          method: put
+          cors: true
+  getCardsByCustomer:
+    handler: gatways/subscriber/main.getCardsByCustomer
+    events:
+      - http:
+          path: /signature/cards
+          method: get
+          cors: true
+

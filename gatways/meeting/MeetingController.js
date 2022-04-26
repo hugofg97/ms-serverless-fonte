@@ -10,10 +10,11 @@ class MeetingController {
   constructor() {
     this.service = new MeetingService();
   }
-  async create({ body }) {
+  async create({ body, userSession }) {
     try {
       if (!body) throw 400;
-      const meeting = await this.service.createMeeting({meeting: JSON.parse(body)});
+      console.log(body)
+      const meeting = await this.service.createMeeting({meeting: {...JSON.parse(body), subscriberId:userSession._id}});
 
       return successfullyCreated({ data: meeting });
     } catch (error) {
@@ -21,13 +22,12 @@ class MeetingController {
       return handleError({ error });
     }
   }
-  async findMeetingsOfTheSubscriber({ pathParameters }) {
+  async findMeetingsOfTheSubscriber({ userSession }) {
     try {
-      if (!pathParameters) throw 400;
-
-      const meetings = await this.service.findMeetingsForTheSubscriber(pathParameters);
+      const meetings = await this.service.findMeetingsForTheSubscriber(userSession);
       return successfullyRead({ data: meetings });
     } catch (error) {
+      console.log(error)
       return handleError({ error });
     }
   }

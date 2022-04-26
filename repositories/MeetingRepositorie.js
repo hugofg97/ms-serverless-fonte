@@ -50,9 +50,9 @@ module.exports = class  IMeetingRepository {
     const meetings = await MeetingModel.connectDb
       .query('subscriberId')
       .eq(subscriberId)
-      .where('deletedAt')
+      .where('status')
       .not()
-      .exists()
+      .eq('canceled')
       .exec();
     if (!meetings) return false;
 
@@ -87,6 +87,10 @@ module.exports = class  IMeetingRepository {
       .and()
       .where('type')
       .eq(type)
+      .and()
+      .where('status')
+      .not()
+      .eq('canceled')
       .exec();
     if (!meeting) return false;
     return new IMeeting({

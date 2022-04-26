@@ -10,6 +10,7 @@ module.exports = class IVideoService {
   }
 
   async pagination({ paginationSettings }) {
+    console.log('>>>>>>>>>>>>>>>>',paginationSettings)
     let videos = await new  IVideoPagination(paginationSettings).pagination(serviceLocator);
     if(paginationSettings?.subscriberId) {
       videos = this.isLikedBySubscriber({videos,...paginationSettings});
@@ -19,11 +20,11 @@ module.exports = class IVideoService {
     }
     return videos;
   }
-  async findBestRanking({ subscriberId = "", unlock }) {
-    let allVideos = await new IVideoFindBestRanked({subscriberId}).find(serviceLocator);
+  async findBestRanking({ _id = "", unlock }) {
+    let allVideos = await new IVideoFindBestRanked({subscriberId:_id}).find(serviceLocator);
     allVideos = this.isLikedBySubscriber({
       videos: allVideos,
-      subscriberId: subscriberId,
+      subscriberId: _id,
     });
     console.log(unlock)
     if(unlock) {
@@ -56,11 +57,11 @@ module.exports = class IVideoService {
     return video;
 
   }
-  async like({ subscriberId = "", videoId }) {
+  async like({ _id, videoId }) {
     const video = await new IVideoFindById({ videoId }).find(serviceLocator);
     if(!video) throw 404;
-    if (!video.thoseWhoLiked.includes(subscriberId)) {
-      video.thoseWhoLiked.push(subscriberId);
+    if (!video.thoseWhoLiked.includes(_id)) {
+      video.thoseWhoLiked.push(_id);
       const likedVideo = await new IVideoLike({videoId, thoseWhoLiked: video.thoseWhoLiked}).like(serviceLocator);
       likedVideo.liked = true;
       likedVideo.likes = likedVideo.thoseWhoLiked.length;
@@ -72,12 +73,12 @@ module.exports = class IVideoService {
     delete video.thoseWhoLiked;
     return video;
   }
-  async unlike({ subscriberId, videoId }) {
+  async unlike({ _id, videoId }) {
     const video = await new IVideoFindById({videoId}).find(serviceLocator);
     if(!video) throw 404;
-    if (video.thoseWhoLiked.includes(subscriberId)) {
-      const thoseWhoLiked = video.thoseWhoLiked.filter((_id) => {
-        return _id != subscriberId;
+    if (video.thoseWhoLiked.includes(_id)) {
+      const thoseWhoLiked = video.thoseWhoLiked.filter((subscriberId) => {
+        return subscriberId != _id;
       });
       const likedVideo = await new IVideoLike({videoId, thoseWhoLiked: thoseWhoLiked}).like(serviceLocator);
       likedVideo.liked = false;
@@ -90,12 +91,13 @@ module.exports = class IVideoService {
     delete video.thoseWhoLiked;
     return video;
   }
-  async findLikedsBySubscriber({ subscriberId, page = 1, unlock = false }) {
-    const videos = await  new IVideoFindAll({subscriberId, page}).find(serviceLocator)
+  async findLikedsBySubscriber({ _id, page = 1, unlock = false }) {
+    const videos = await  new IVideoFindAll({subscriberId:_id, page}).find(serviceLocator)
     let videosLikeds = videos.filter((video) => {
+      console.log(video.thoseWhoLiked.includes(_id))
       if (
         video.thoseWhoLiked.length &&
-        video.thoseWhoLiked.includes(subscriberId)
+        video.thoseWhoLiked.includes(_id)
       ) {
         video.liked = true;
         video.likes = video.thoseWhoLiked.length;

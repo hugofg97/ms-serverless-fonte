@@ -1,18 +1,20 @@
+const { AuthMiddleware, ExtractDataIfLoggedIn } = require("../../core/config/auth");
 const SessionController = require("./SessionController");
 
 const sessionController = new SessionController();
+const fobridenError =  {
+  statusCode: 403,
+  body: JSON.stringify({ message: 'Unauthorized, token is invalid'}),
+};
 
 module.exports.create = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await sessionController.create({ body, pathParameters });
+  const authenticatePayload = await AuthMiddleware(event);
+  if(!authenticatePayload) return fobridenError;
+  return await sessionController.create(authenticatePayload);
 };
 module.exports.findAllSession = async (event, context, ba) => {
-  const { body, pathParameters, queryStringParameters } = event;
-  return await sessionController.findAll({
-    body,
-    pathParameters,
-    queryStringParameters,
-  });
+  const data = await ExtractDataIfLoggedIn(event);
+  return await sessionController.findAll(data);
 };
 module.exports.findAllTags = async (event, context) => {
   const { body, pathParameters, queryStringParameters } = event;
@@ -23,14 +25,11 @@ module.exports.findAllTags = async (event, context) => {
   });
 };
 module.exports.pagination = async (event, context) => {
-  const { body, pathParameters, queryStringParameters } = event;
-  return await sessionController.pagination({
-    body,
-    pathParameters,
-    queryStringParameters,
-  });
+  const data = await ExtractDataIfLoggedIn(event);
+  return await sessionController.pagination(data);
 };
 module.exports.update = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await sessionController.update({ body, pathParameters });
+  const authenticatePayload = await AuthMiddleware(event);
+  if(!authenticatePayload) return fobridenError;
+  return await sessionController.update(authenticatePayload);
 };

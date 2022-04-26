@@ -22,9 +22,10 @@ class TherapyController {
       return handleError({ error });
     }
   }
-  async findAll({ queryStringParameters }) {
+  async findAll({ userSession }) {
     try {
-      const result = await this.service.findAll({...queryStringParameters});
+      console.log("akiiiiiiiiiii",userSession)
+      const result = await this.service.findAll(userSession);
       return successfullyRead({ data: result });
     } catch (error) {
       console.log(error);

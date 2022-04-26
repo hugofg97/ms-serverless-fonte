@@ -1,8 +1,9 @@
+const {ExtractDataIfLoggedIn } = require("../../core/config/auth");
 const HomeController = require("./HomeController");
 
 const homeController = new HomeController();
 
 module.exports.config = async (event, context) => {
-  const { body, pathParameters } = event;
-  return await homeController.loadHomeSessions({ body, pathParameters });
+  const authenticatePayload = await ExtractDataIfLoggedIn(event);
+  return await homeController.loadHomeSessions(authenticatePayload);
 };

@@ -14,9 +14,13 @@ module.exports = class  ITherapyService {
     if (therapyExists) throw 409;
   }
 
-  async findAll({subscriberId}) {
-    const therapys = await new ITherapyFindAll({subscriberId}).find(serviceLocator);
-    return this.checkMeetingInTherapy({subscriberId, therapys});
+  async findAll({_id}) {
+    const therapys = await new ITherapyFindAll().find(serviceLocator);
+    if (_id) return this.checkMeetingInTherapy({subscriberId:_id, therapys});
+    return therapys.map((therapy) => {
+      therapy.locked = false
+      return therapy;
+    })
   }
   async checkMeetingInTherapy({  subscriberId, therapys }) {
     const meetings = await new IMeetingFindByIdSubscriber({subscriberId}).find(serviceLocator);

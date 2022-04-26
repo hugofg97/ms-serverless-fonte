@@ -13,13 +13,13 @@ class HomeController {
     this.subscriberService = new SubscriberService();
   }
 
-  async loadHomeSessions({ pathParameters, queryStringParameters }) {
+  async loadHomeSessions({ pathParameters, userSession }) {
     try {
       if (!pathParameters) throw 400;
-      const isSubscriber = await this.subscriberService.signatureIsActive({...queryStringParameters});
-      const sessions = await this.sessionService.findAll({...pathParameters, ...queryStringParameters, isSubscriber});
-
-      const rankedVideos = await this.videoService.findBestRanking({...queryStringParameters, unlock: isSubscriber} );
+      const isSubscriber = await this.subscriberService.signatureIsActive({...userSession});
+      const sessions = await this.sessionService.findAll({...pathParameters, ...userSession, isSubscriber});
+      console.log("))AS)A))SA)WS)A")
+      const rankedVideos = await this.videoService.findBestRanking({...userSession, unlock: isSubscriber} );
  
       sessions.push(...rankedVideos);
 
