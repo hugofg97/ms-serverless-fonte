@@ -66,16 +66,6 @@ class ISignatureCustomerBillingCard {
         label,
         address 
     }){
-        console.log(idPg)
-        console.log(number)
-        console.log(holderName)
-        console.log(holderDocument)
-        console.log(expMonth)
-        console.log(expYear)
-        console.log(cvv)
-        console.log(brand)
-        console.log(label)
-        console.log(address)
         this.cardId = cardId ?? ''
         this.idPg = isRequired(idPg, 400);
         this.number = isRequired(number, 400);
@@ -103,16 +93,17 @@ class ISignatureCustomerBillingCard {
 class ISignatureDeleteBillingCardCustomer {
     constructor({
         idPg,
-        idCard
+        cardId
     }){
         console.log(idPg)
-        console.log(idCard)
+        console.log(cardId)
         this.idPg = isRequired(idPg, 400);
-        this.idCard = isRequired(idCard, 400);
+        this.cardId = isRequired(cardId, 400);
        
     }
 
     async delete({signatureRepository}) {
+        console.log(this)
         return await signatureRepository.deleteBillingCard({...this});
     }
 }

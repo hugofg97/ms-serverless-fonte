@@ -3,7 +3,9 @@ const { verify, decode } = require("jsonwebtoken");
 module.exports.AuthMiddleware = async (event) => {
   const { headers } = event;
   let tokenDecoded;
-
+  if(headers.Authorization) {
+    headers.authorization = headers.Authorization;
+  }
   if (!headers.authorization) return false;
   const { authorization } = headers;
   const parts = authorization.split(" ");

@@ -5,15 +5,16 @@
 - - [x] criar classe signature
 - [x] Verificar assinatura
 - - [x] Cancelar assinatura
-- - [] Pagar fatura atrasada
 - - [x] Editar cartão
 - [x] Verificar email
 - [x] Cancelar assinatura
 - [x] Editar cartão
-- [] Pagar Fatura
-- [...] Authenticação
+- [x] Authenticação
+- [] Pagar Fatura Atrasada
+- [] Melhoria no front-end
 ###### Web e coisas que elas pediram
 - [x] Animação splash scren
+- [] Likes na home
 - [*] Convite (necessita de landing page)
 
 

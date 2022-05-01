@@ -42,12 +42,10 @@ module.exports = class PagarmeRepository {
       throw 500;
     }
   }
-  async deleteBillingCard({ idPg, idCard}) {
+  async deleteBillingCard({ idPg, cardId}) {
     try {
-      const path = createPath({ entity: this.entity, param: `${idPg}/cards/${idCard}` });
+      const path = createPath({ entity: this.entity, param: `${idPg}/cards/${cardId}` });
       const { data } = await pagarmeConnect.delete(path);
-
-    
       return data;
     } catch (err) {
     console.log(err)

@@ -126,11 +126,11 @@ module.exports = class Subscriber {
     }
   }
 
-  async linkBillingCard({ body, pathParameters }) {
+  async linkBillingCard({ body, userSession }) {
     try {
       if (!body) throw 400;
       const createCard = await this.service.createBillingCard({
-        card: { ...JSON.parse(body), ...pathParameters },
+        card: { ...JSON.parse(body), ...userSession },
       });
       return successfullyRead({ data: createCard });
     } catch (error) {
@@ -138,10 +138,21 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async paymentAssignature({ pathParameters }) {
+  async deleteCardByCustomer({ pathParameters, userSession }) {
+    console.log(pathParameters, userSession, ">>>>")
+    try {
+      if (!pathParameters) throw 400;
+      const deleteCard = await this.service.deleteBillingCard({...pathParameters, ...userSession})
+      return successfullyRead({ data: deleteCard });
+    } catch (error) {
+      console.log(error);
+      return handleError({ error: error });
+    }
+  }
+  async paymentAssignature({ userSession }) {
     try {
       const result = await this.service.paymentAssignature({
-        ...pathParameters,
+        ...userSession,
       });
 
       return successfullyRead({ data: result });
@@ -150,9 +161,9 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async cancelSignature({ pathParameters }) {
+  async cancelSignature({ userSession }) {
     try {
-      const result = await this.service.cancelSignature({ ...pathParameters });
+      const result = await this.service.cancelSignature({ ...userSession });
 
       return successfullyRead({ data: result });
     } catch (error) {
@@ -170,11 +181,11 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async updateBillingCard({ body, pathParameters }) {
+  async updateBillingCard({ body, userSession }) {
     try {
       const result = await this.service.updateBillingCard({
         ...JSON.parse(body),
-        ...pathParameters,
+        ...userSession,
       });
 
       return successfullyRead({ data: result });
@@ -183,11 +194,11 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async updateBillingDate({ body, pathParameters }) {
+  async updateBillingDate({ body, userSession }) {
     try {
       const result = await this.service.updateBillingDate({
         ...JSON.parse(body),
-        ...pathParameters,
+        ...userSession,
       });
 
       return successfullyRead({ data: result });
@@ -196,10 +207,10 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async getCardsByCustomerDocument({ pathParameters }) {
+  async getCardsByCustomerDocument({ userSession }) {
     try {
       const result = await this.service.getCardsByCustomerDocument(
-        pathParameters
+        userSession
       );
 
       return successfullyRead({ data: result });
@@ -209,9 +220,9 @@ module.exports = class Subscriber {
     }
   }
 
-  async getSignature({ queryStringParameters }) {
+  async getSignature({ userSession }) {
     try {
-      const document = queryStringParameters?.document ?? null;
+      const document = userSession.document;
 
       isRequired(document, 404);
 

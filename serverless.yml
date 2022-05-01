@@ -266,6 +266,16 @@ functions:
           path: /subscriber/card
           method: post
           cors: true
+  deleteBillingCard:
+    handler: gatways/subscriber/main.deleteCardByCustomer
+    events:
+      - http:
+          path: /subscriber/card/{cardId}
+          method: delete
+          cors: true
+          parameters:
+            paths:
+              cardId: true
   paymentSignature:
     handler: gatways/subscriber/main.paymentAssignature
     events:

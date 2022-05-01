@@ -58,9 +58,9 @@ module.exports = class ISubscriberService {
     return bcrypt.compareSync(payloadPassword, password);
   }
 
-  async generateToken({ _id, name, lastName, email, document, birthDate }) {
+  async generateToken({ _id, name, idPg, lastName, email, document, birthDate }) {
     return jwt.sign(
-      { _id, name, lastName, email, document, birthDate },
+      { _id, name, lastName, email, idPg, document, birthDate },
       process.env.SECRET
     );
   }
@@ -138,8 +138,12 @@ module.exports = class ISubscriberService {
     );
     return updatedSubscriber;
   }
+  async deleteBillingCard( card ) {
+    console.log(card)
+    const cardModel = await new ISignatureDeleteBillingCardCustomer(card).delete(serviceLocator);
+    return cardModel;
+  }
   async updateBillingCard({ document, cardId }) {
-    console.log('________', cardId, document);
     const existsSubscriber = await new ISubscriberFindByDocument({document}).find(
       serviceLocator
     );
@@ -196,7 +200,6 @@ module.exports = class ISubscriberService {
       existsSubscriber
     ).find(serviceLocator);
     if (!existsCustomerInPagarme) throw 404;
-
     const cancel = await new ISignatureCancelSignature({
       signature: existsSubscriber?.signature,
     }).delete(serviceLocator);
@@ -205,6 +208,12 @@ module.exports = class ISubscriberService {
     const updatedSubscriber = await new ISubscriber(existsSubscriber).update(
       serviceLocator
     );
+    const cards = await new ISignatureFindCards(existsSubscriber).find(serviceLocator);
+      if(cards.length) {
+        for await (const [index, value] of Object.entries(cards)) {
+          await new ISignatureDeleteBillingCardCustomer({cardId: value.id, idPg: existsSubscriber.idPg}).delete(serviceLocator);
+        }
+      }
     return updatedSubscriber;
   }
   async payCharge({ chargeId }) {

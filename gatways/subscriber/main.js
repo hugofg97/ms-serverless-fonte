@@ -80,6 +80,11 @@ module.exports.getCardsByCustomer = async (event, context) => {
   if(!authenticatePayload) return fobridenError
   return await subscriberController.getCardsByCustomerDocument(authenticatePayload);
 };
+module.exports.deleteCardByCustomer = async (event, context) => {
+  const authenticatePayload = await AuthMiddleware(event);
+  if(!authenticatePayload) return fobridenError
+  return await subscriberController.deleteCardByCustomer(authenticatePayload);
+};
 
 // module.exports.findAllSubscriber = async (event, context) => {
 //   const { body, pathParameters } = event;
