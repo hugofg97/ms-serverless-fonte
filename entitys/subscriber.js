@@ -1,19 +1,21 @@
+const { randomUUID } = require("crypto");
 const dynamoose = require("dynamoose");
 
 const schema = new dynamoose.Schema(
   {
-    "document": {
-      "type": String,
-      "hashKey": true,
-    },
     "_id": {
       "type": String,
+      "hashKey": true,
+      default: randomUUID(), 
+  },
+    "document": {
+      "type": String,
       index: {
-        "name":"_id-index",
+        "name":"document-index",
         global:true,
         rangeKey: 'createdAt'
       }
-  },
+    },
   email: {
     type: String,
     required: true,
@@ -51,9 +53,6 @@ const schema = new dynamoose.Schema(
     mobilePhone: {
       type: String,
       required:true,
-    },
-    cards: {
-      type: Array,
     },
     signature: {
       type: String,

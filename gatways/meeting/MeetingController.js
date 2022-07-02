@@ -13,7 +13,6 @@ class MeetingController {
   async create({ body, userSession }) {
     try {
       if (!body) throw 400;
-      console.log(body)
       const meeting = await this.service.createMeeting({meeting: {...JSON.parse(body), subscriberId:userSession._id}});
 
       return successfullyCreated({ data: meeting });

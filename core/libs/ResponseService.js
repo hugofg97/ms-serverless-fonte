@@ -1,4 +1,5 @@
 const { statusCode, messageResponse } = require("../config/consts");
+const crypto = require('crypto-js');
 
 const successfullyCreated = async ({ data }) => {
   return {
@@ -20,6 +21,23 @@ const successfullyRead = async ({ data, count }) => {
     statusCode: statusCode.OK,
     body: JSON.stringify({
       data: data,
+      count,
+      message: messageResponse.READ_DATA,
+    }),
+    headers: {
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers" : "Content-Type",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+  },
+  };
+};
+const successfullyReadCipher = async ({ data, count }) => {
+  const cipherData = crypto.AES.encrypt(JSON.stringify(data), process.env.PWD_CIPHER).toString();   
+  return {
+    statusCode: statusCode.OK,
+    body: JSON.stringify({
+      data:cipherData,
       count,
       message: messageResponse.READ_DATA,
     }),
@@ -93,4 +111,5 @@ module.exports = {
   notFound,
   alreadExists,
   successfullyRead,
+  successfullyReadCipher
 };

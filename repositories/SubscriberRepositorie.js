@@ -11,7 +11,6 @@ module.exports = class ISubscriberRepository {
     const salt = bcrypt.genSaltSync(10);
     const crypt =  bcrypt.hashSync(name+document, salt).substring(15,20).replace(/\./g, '-').replace(/\//g, '-');;
     const subscriber = await SubscriberModel.connectDb.create({
-      _id: `${uuid.v1()}-${crypt}`,
       name,
       lastName,
       email,
@@ -20,6 +19,7 @@ module.exports = class ISubscriberRepository {
       password,
       mobilePhone: mobilePhone,
     })
+    console.log("CRIACAO:", subscriber)
     return new ISubscriber({
       _id: subscriber._id,
       name: subscriber.name,
@@ -34,20 +34,21 @@ module.exports = class ISubscriberRepository {
       password: "removed",
     });
   }
-  async update({ idPg, name, mobilePhone, signature, cards, lastName, document, birthDate }) {
-    console.log("______________:")
+  async update({ idPg, name, mobilePhone, signature, cards, lastName, document, birthDate, _id }) {
+    console.log(_id)
     const subscriber = await SubscriberModel.connectDb.update(
-      { 'document': document },
+      {'_id': _id},
       {
         idPg,
         name,
+        document,
         mobilePhone,
         lastName,
         signature,
         birthDate,
-        cards
       }
     );
+    console.log(subscriber)
     return new ISubscriber({
       _id: subscriber._id,
       idPg: subscriber.idPg,
@@ -63,9 +64,30 @@ module.exports = class ISubscriberRepository {
       password: "removed",
     });
   }
-  async setProfileImage({ document, profileImage }) {
+  async delete({ _id }) {
+    console.log('<<<', _id)
     const subscriber = await SubscriberModel.connectDb.update(
-      { 'document': document },
+      {'_id': _id},
+      {
+        name: '',
+        password: '',
+        document: 'deleted',
+        email: 'deleted',
+        profileImage: '',
+        mobilePhone:'',
+        lastName:'',
+        birthDate: '',
+        deletedAt: new Date().getTime()
+      }
+    );
+    console.log('>>>>', subscriber)
+    if(subscriber)
+    return { message: 'Usuário deletado com sucesso'};
+    else return  {message: 'Erro ao deletar usuário'}
+  }
+  async setProfileImage({ _id, profileImage }) {
+    const subscriber = await SubscriberModel.connectDb.update(
+      { '_id': _id },
       {
         profileImage: profileImage,
       }
@@ -87,7 +109,14 @@ module.exports = class ISubscriberRepository {
   }
 
   async findByDocument({ document }) {
-    const subscriber = await SubscriberModel.connectDb.get({ 'document': document })
+    console.log(document)
+    const [subscriber] = await SubscriberModel.connectDb.query('document')
+    .eq(document)
+    .where('deletedAt')
+    .not()
+    .exists()
+    .exec()
+    console.log("FIND DOC", subscriber)
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -105,14 +134,9 @@ module.exports = class ISubscriberRepository {
       });
     else return false;
   }
+  
   async findById({ subscriberId }) {
-    const [subscriber] = await SubscriberModel.connectDb
-      .query('_id')
-      .eq(subscriberId)
-      .where('deletedAt')
-      .not()
-      .exists()
-      .exec()
+    const subscriber = await SubscriberModel.connectDb.get({_id: subscriberId})
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -139,6 +163,8 @@ module.exports = class ISubscriberRepository {
       .not()
       .exists()
       .exec()
+      console.log("EMAIL: ", subscriber)
+
     if (subscriber)
       return new ISubscriber({
         _id: subscriber._id,
@@ -156,9 +182,9 @@ module.exports = class ISubscriberRepository {
       });
     else return false;
   }
-  async updatePassword({ document, password }) {
+  async updatePassword({ _id, password }) {
     const subscriber = await SubscriberModel.connectDb.update(
-      { 'document': document },
+      { '_id': _id },
       {
         password: password,
       }

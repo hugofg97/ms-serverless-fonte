@@ -23,7 +23,13 @@ module.exports.AuthMiddleware = async (event) => {
 };
 module.exports.ExtractDataIfLoggedIn = async (event) => {
   const { headers } = event;
+  event.userSession = {
+    _id: ''
+  }
   let tokenDecoded;
+  if(headers.Authorization) {
+    headers.authorization = headers.Authorization;
+  }
   if (!headers.authorization) return event;
   const { authorization } = headers;
   const parts = authorization.split(" ");

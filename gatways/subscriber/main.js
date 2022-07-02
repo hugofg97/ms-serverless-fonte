@@ -15,6 +15,11 @@ module.exports.update = async (event, context) => {
   if(!authenticatePayload) return fobridenError
   return await subscriberController.update(authenticatePayload);
 };
+module.exports.delete = async (event, context) => {
+  const authenticatePayload = await AuthMiddleware(event);
+  if(!authenticatePayload) return fobridenError
+  return await subscriberController.deleteSubscriber(authenticatePayload);
+};
 module.exports.findByDocument = async (event, context) => {
   const authenticatePayload = await AuthMiddleware(event);
   if(!authenticatePayload) return fobridenError
@@ -34,10 +39,9 @@ module.exports.forgotPassword = async (event, context) => {
   const { body, pathParameters } = event;
   return await subscriberController.forgotPassword({ body, pathParameters });
 };
-module.exports.updatePassword = async (event, context) => {
-  const authenticatePayload = await AuthMiddleware(event);
-  if(!authenticatePayload) return fobridenError
-  return await subscriberController.updatePassword(authenticatePayload);
+module.exports.updatePassword = async ({body, pathParameters}, context) => {
+
+  return await subscriberController.updatePassword({body,pathParameters});
 };
 module.exports.login = async (event, context) => {
   const { body, pathParameters } = event;
@@ -78,7 +82,7 @@ module.exports.updateBillingDate = async (event, context) => {
 module.exports.getCardsByCustomer = async (event, context) => {
   const authenticatePayload = await AuthMiddleware(event);
   if(!authenticatePayload) return fobridenError
-  return await subscriberController.getCardsByCustomerDocument(authenticatePayload);
+  return await subscriberController.getCardsByCustomer(authenticatePayload);
 };
 module.exports.deleteCardByCustomer = async (event, context) => {
   const authenticatePayload = await AuthMiddleware(event);

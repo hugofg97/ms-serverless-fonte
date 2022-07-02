@@ -17,14 +17,6 @@ class ISubscriber {
     cards,
     signature,
   }) {
-    console.log(name,
-      lastName,
-      email,
-      document,
-      birthDate,
-      password,
-      mobilePhone,
-      profileImage)
     this._id = _id??'';
     this.idPg = idPg??'';
     this.name = isRequired(name, 400);
@@ -44,7 +36,6 @@ class ISubscriber {
   }
 
   async update({subscriberRepository}) {
-    console.log("CARDS")
    return subscriberRepository.update({...this});
   }
 }
@@ -63,13 +54,24 @@ class ISubscriberFindByDocument {
 
 class ISubscriberFindById {
   constructor(
-    { subscriberId },
+    { _id },
   ) { 
-    this.subscriberId = isRequired(subscriberId,400);
+    this.subscriberId = isRequired(_id, 400);
   }
 
   async find({subscriberRepository}) {
    return subscriberRepository.findById({...this});
+  }
+}
+class ISubscriberDeleteById {
+  constructor(
+    { _id },
+  ) { 
+    this._id = isRequired(_id, 400);
+  }
+
+  async delete({subscriberRepository}) {
+   return subscriberRepository.delete({...this});
   }
 }
 class ISubscriberFindByEmail {
@@ -93,10 +95,10 @@ class ISubscriberForgotPassword {
 
 class ISubscriberUpdatePassword {
   constructor({
-   document,
+   _id,
    password
   }) {
-   this.document = validateDocument(document);
+   this._id = isRequired(_id, 400);
    this.password = isRequired(password,  400);
   }
   async update({subscriberRepository}) {
@@ -105,10 +107,10 @@ class ISubscriberUpdatePassword {
 }
 class ISubscriberProfileImage {
   constructor({
-   document,
+   _id,
    profileImage
   }) {
-   this.document = validateDocument(document);
+   this._id = isRequired(_id, 400);
    this.profileImage = isRequired(profileImage,  400);
   }
   async update({subscriberRepository}) {
@@ -137,7 +139,8 @@ module.exports = {
   ISubscriberFindByEmail,
   ISubscriberProfileImage,
   ISubscriberProfileImage,
-  ISubscriberUpdatePassword
+  ISubscriberUpdatePassword,
+  ISubscriberDeleteById
 
 }
 

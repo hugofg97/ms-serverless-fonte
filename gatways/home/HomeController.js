@@ -18,7 +18,6 @@ class HomeController {
       if (!pathParameters) throw 400;
       const isSubscriber = await this.subscriberService.signatureIsActive({...userSession});
       const sessions = await this.sessionService.findAll({...pathParameters, ...userSession, isSubscriber});
-      console.log("))AS)A))SA)WS)A")
       const rankedVideos = await this.videoService.findBestRanking({...userSession, unlock: isSubscriber} );
  
       sessions.push(...rankedVideos);

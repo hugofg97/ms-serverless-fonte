@@ -24,7 +24,6 @@ class TherapyController {
   }
   async findAll({ userSession }) {
     try {
-      console.log("akiiiiiiiiiii",userSession)
       const result = await this.service.findAll(userSession);
       return successfullyRead({ data: result });
     } catch (error) {

@@ -27,7 +27,6 @@ class ISignatureCustomer {
     }
 
     async create({signatureRepository}) {
-        console.log(this)
         return await signatureRepository.createCustomer({customer: this});
     }
 }
@@ -68,7 +67,7 @@ class ISignatureCustomerBillingCard {
     }){
         this.cardId = cardId ?? ''
         this.idPg = isRequired(idPg, 400);
-        this.number = isRequired(number, 400);
+        this.number = isRequired(number.trim(), 400);
         this.holder_name = isRequired(holderName, 400);
         this.holder_document = validateDocument(holderDocument);
         this.exp_month = isRequired(parseInt(expMonth), 400);
@@ -95,15 +94,12 @@ class ISignatureDeleteBillingCardCustomer {
         idPg,
         cardId
     }){
-        console.log(idPg)
-        console.log(cardId)
         this.idPg = isRequired(idPg, 400);
         this.cardId = isRequired(cardId, 400);
        
     }
 
     async delete({signatureRepository}) {
-        console.log(this)
         return await signatureRepository.deleteBillingCard({...this});
     }
 }

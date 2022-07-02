@@ -8,7 +8,6 @@ module.exports = class PagarmeRepository {
     try {
       const path = createPath({ entity: this.entity });
       const  {data}  = await pagarmeConnect.post(path, customer);
-      console.log(data)
       return data;
     } catch (err) {
       console.log(err)
@@ -18,11 +17,8 @@ module.exports = class PagarmeRepository {
 
   async createBillingCard({card}) {
     try {
-  
-      console.log(card)
       const path = createPath({ entity: this.entity, param: `${card?.idPg}/cards` });
       const { data } = await pagarmeConnect.post(path, card);
-    console.log(data)
       return data;
     } catch (err) {
     console.log(err)
@@ -59,7 +55,6 @@ module.exports = class PagarmeRepository {
 
       return data;
     } catch (err) {
-      // console.log(err.response.data)
       throw 500;
     }
   };
@@ -67,10 +62,9 @@ module.exports = class PagarmeRepository {
     try {
       const path = createPath({ entity: this.entity, param: idPg });
       const { data } = await pagarmeConnect.get(path);
-      // console.log(data)
       return data;
     } catch (err) {
-      // console.log(err.response.data)
+      console.log(err.response.data)
       throw 500;
     }
   };
@@ -81,7 +75,7 @@ module.exports = class PagarmeRepository {
 
       return data;
     } catch (err) {
-      // console.log(err.response.data)
+      console.log(err.response.data)
       throw 500;
     }
   };
@@ -122,7 +116,6 @@ module.exports = class PagarmeRepository {
  
       const signature = data.data[0]?? null;
       if(signature?.id) {
-        console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<', signature)
         delete signature.customer;
         delete signature.current_cycle;
         delete signature.plan;
@@ -160,7 +153,6 @@ module.exports = class PagarmeRepository {
       const query = `subscriptions/${signature}/card`
 
       const { data } = await pagarmeConnect.patch(query, {'card_id': cardId});
-      console.log(data)
       return data;
     } catch (err) {
       
@@ -172,7 +164,6 @@ module.exports = class PagarmeRepository {
       const query = `charges/${card?.chargeId}/payment-method`
       delete card.chargeId;
       delete card.options
-      // console.log('__________________',card)
       const { data } = await pagarmeConnect.patch(query, { 'update_subscription': true,'payment_method':'credit_card','credit_card': card,'operation_type':'auth_only','installments':1,'statement_descriptor':'Fonte assinatura'});
 
       return data;
@@ -193,6 +184,9 @@ module.exports = class PagarmeRepository {
         delete charges.customer;
         delete charges.invoice;
         delete charges.last_transaction;
+        delete charges.amount
+        delete charges.gatway_id
+        delete charges.updated_at
       }
  
       return charges;
@@ -218,7 +212,6 @@ module.exports = class PagarmeRepository {
      
       const query = `customers/${idPg}/cards`
       const { data } = await pagarmeConnect.get(query);
-      console.log(data);
       return data.data.map(el => ({
         id: el.id,
         brand: el.brand,

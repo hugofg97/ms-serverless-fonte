@@ -3,6 +3,7 @@ const {
   handleError,
   successfullyRead,
   successfullyCreated,
+  successfullyReadCipher,
 } = require("../../core/libs/ResponseService");
 
 const SubscriberService = require("./SubscriberService");
@@ -14,7 +15,6 @@ module.exports = class Subscriber {
   async create({ body }) {
     try {
       if (!body) throw 400;
-      console.log("_____________");
       const subscriber = await this.service.createSubscriber({
         subscriber: JSON.parse(body),
       });
@@ -30,7 +30,6 @@ module.exports = class Subscriber {
       if (!body) throw 400;
 
       const logged = await this.service.login({ user: JSON.parse(body) });
-
       return successfullyRead({ data: logged });
     } catch (error) {
       console.log(error);
@@ -52,7 +51,6 @@ module.exports = class Subscriber {
   }
   async emailVerification({ pathParameters }) {
     try {
-      console.log(pathParameters);
       if (!pathParameters) throw 400;
       const requestEmailVerification = await this.service.emailVerification(
         pathParameters
@@ -69,7 +67,6 @@ module.exports = class Subscriber {
   async updatePassword({ body, pathParameters }) {
     try {
       if (!body) throw 400;
-      console.log(pathParameters);
 
       const updatedSubscriber = await this.service.updatePassword({
         ...JSON.parse(body),
@@ -112,6 +109,17 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
+
+  async deleteSubscriber({ userSession }) {
+    try {
+      console.log(userSession)
+      const deletedSubscriber = await this.service.deleteSubscriber(userSession);
+      return successfullyRead({ data: deletedSubscriber });
+    } catch (error) {
+      return handleError({ error: error });
+    }
+  }
+
   async update({ body, userSession }) {
     try {
       if (!body) throw 400;
@@ -122,6 +130,7 @@ module.exports = class Subscriber {
       });
       return successfullyRead({ data: result });
     } catch (error) {
+      console.log(error)
       return handleError({ error: error });
     }
   }
@@ -130,7 +139,8 @@ module.exports = class Subscriber {
     try {
       if (!body) throw 400;
       const createCard = await this.service.createBillingCard({
-        card: { ...JSON.parse(body), ...userSession },
+        card: { ...JSON.parse(body) },
+        user: userSession
       });
       return successfullyRead({ data: createCard });
     } catch (error) {
@@ -139,7 +149,6 @@ module.exports = class Subscriber {
     }
   }
   async deleteCardByCustomer({ pathParameters, userSession }) {
-    console.log(pathParameters, userSession, ">>>>")
     try {
       if (!pathParameters) throw 400;
       const deleteCard = await this.service.deleteBillingCard({...pathParameters, ...userSession})
@@ -183,12 +192,12 @@ module.exports = class Subscriber {
   }
   async updateBillingCard({ body, userSession }) {
     try {
-      const result = await this.service.updateBillingCard({
+      await this.service.updateBillingCard({
         ...JSON.parse(body),
         ...userSession,
       });
 
-      return successfullyRead({ data: result });
+      return successfullyRead({ data: true });
     } catch (error) {
       console.log(error);
       return handleError({ error: error });
@@ -207,9 +216,9 @@ module.exports = class Subscriber {
       return handleError({ error: error });
     }
   }
-  async getCardsByCustomerDocument({ userSession }) {
+  async getCardsByCustomer({ userSession }) {
     try {
-      const result = await this.service.getCardsByCustomerDocument(
+      const result = await this.service.getCardsByCustomer(
         userSession
       );
 
@@ -222,11 +231,11 @@ module.exports = class Subscriber {
 
   async getSignature({ userSession }) {
     try {
-      const document = userSession.document;
+      const _id = userSession._id;
 
-      isRequired(document, 404);
+      isRequired(_id, 404);
 
-      const existsSubscriber = await this.service.findByDocument({ document });
+      const existsSubscriber = await this.service.findById({ _id });
 
       if (!existsSubscriber) throw 404;
 
@@ -251,7 +260,8 @@ module.exports = class Subscriber {
         invoicesExists?.charge?.status === "paid"
           ? true
           : false;
-      return successfullyRead({ data: invoicesExists });
+    
+      return successfullyReadCipher({ data:invoicesExists });
     } catch (error) {
       return handleError({ error });
     }

@@ -76,10 +76,11 @@ class VideoController {
     try {
 
       const signatureIsActive = await this.subscriberService.signatureIsActive({ ...userSession });
+      console.log(">>>>>>>>>>>", signatureIsActive)
       const rankedVideos = await this.videoService.findBestRanking(
         { ...userSession, unlock: signatureIsActive },
       );
-
+        console.log(rankedVideos)
       return successfullyRead({ data: rankedVideos });
     } catch (error) {
       console.log(error);

@@ -1,13 +1,16 @@
 const VideoController = require("./VideoController");
 const jwt = require("jsonwebtoken");
 const { ExtractDataIfLoggedIn, AuthMiddleware } = require("../../core/config/auth");
-
+const fobridenError =  {
+  statusCode: 403,
+  body: JSON.stringify({ message: 'Unauthorized, token is invalid'}),
+};
 const videoController = new VideoController();
 
 module.exports.create = async (event, context) => {
   const authenticatePayload = await AuthMiddleware(event);
-  if(!authenticatePayload) return fobridenError;
-  return await videoController.create(authenticatePayload);
+  if(!authenticatePayload) 
+  return await videoController.create(event);
 };
 module.exports.pagination = async (event, context) => {
   const authenticatePayload = await ExtractDataIfLoggedIn(event);

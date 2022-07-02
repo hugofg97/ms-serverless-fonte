@@ -10,7 +10,6 @@ module.exports = class IVideoService {
   }
 
   async pagination({ paginationSettings }) {
-    console.log('>>>>>>>>>>>>>>>>',paginationSettings)
     let videos = await new  IVideoPagination(paginationSettings).pagination(serviceLocator);
     if(paginationSettings?.subscriberId) {
       videos = this.isLikedBySubscriber({videos,...paginationSettings});
@@ -26,7 +25,6 @@ module.exports = class IVideoService {
       videos: allVideos,
       subscriberId: _id,
     });
-    console.log(unlock)
     if(unlock) {
       allVideos = this.unlockVideos({videos: allVideos});
     }
@@ -94,7 +92,6 @@ module.exports = class IVideoService {
   async findLikedsBySubscriber({ _id, page = 1, unlock = false }) {
     const videos = await  new IVideoFindAll({subscriberId:_id, page}).find(serviceLocator)
     let videosLikeds = videos.filter((video) => {
-      console.log(video.thoseWhoLiked.includes(_id))
       if (
         video.thoseWhoLiked.length &&
         video.thoseWhoLiked.includes(_id)

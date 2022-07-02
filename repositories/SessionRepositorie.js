@@ -6,8 +6,6 @@ const bcrypt = require('bcrypt')
 module.exports = class ISessionRepository {
  
   async create({ name, description, tag }) {
-    console.log("<<<<<<<<<<<<<<<<<<<<")
-    console.log('aaa',name, description, tag)
     const salt = bcrypt.genSaltSync(10);
     const crypt = bcrypt.hashSync(name + description + tag, salt).substring(15, 20).replace(/\./g, '-').replace(/\//g, '-');;
     const session = await SessionModel.connectDb.create({
