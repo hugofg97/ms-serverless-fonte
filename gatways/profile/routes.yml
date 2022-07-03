@@ -1,0 +1,35 @@
+support:
+  handler: gatways/profile/main.support
+  events:
+    - http:
+        path: /app/support
+        method: get
+        cors: true
+        private: true
+privacity:
+  handler: gatways/profile/main.privacity
+  events:
+    - http:
+        path: /app/privacity
+        method: get
+        cors: true
+        private: true
+uploadImage:
+  handler: gatways/profile/main.profileImage
+  events:
+    - http:
+        path: /profile/image
+        method: post
+        cors: true
+        private: true
+        parameters:
+          paths:
+            document: true
+dayTexts:
+  handler: gatways/profile/main.dayTexts
+  events:
+    - http:
+        path: /phrasesday
+        method: get
+        cors: true
+        private: true

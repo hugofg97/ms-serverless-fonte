@@ -4,393 +4,62 @@ frameworkVersion: "2"
 useDotenv: true
 
 provider:
+  apiName: FonteReiki-${env:ENVIRONMENT}
   name: aws
   runtime: nodejs14.x
   lambdaHashingVersion: "20201221"
   timeout: 30
-  region: sa-east-1
- 
+  region: ${env:REGION}
+
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
         - s3:*
-      Resource: '*'
-  stage: prd
+      Resource: "*"
+  stage: ${env:ENVIRONMENT}
   apiKeys:
-    - x-api-key-fonte-app-prd
+    - ${env:X_API_KEY_NAME}
   usagePlan:
-    quota: 
+    quota:
       limit: 100000
-      period: MONTH 
+      period: MONTH
     throttle:
       rateLimit: 20
       burstLimit: 30
+tracing:
+  apiGateway: true
+  lambda: true
+
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+    GatewayResponseDefault5XX:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
 
 plugins:
   - serverless-dotenv-plugin # Allow set global parameters in env.{enviroment}
   - serverless-offline
 
 functions:
-  createSession:
-    handler: gatways/sessions/main.create
-    events:
-      - http:
-          path: /session/create
-          method: post
-          cors: true
-          private: true
-  findAllSessions:
-    handler: gatways/sessions/main.findAllSession
-    events:
-      - http:
-          path: /session/{tag}/findall
-          method: get
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              tag: true
-  paginationSessions:
-    handler: gatways/sessions/main.pagination
-    events:
-      - http:
-          path: /session/pagination/{tag}/{page}
-          method: get
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              page: true
-              tag: true
-  findAllTags:
-    handler: gatways/sessions/main.findAllTags
-    events:
-      - http:
-          path: /session/tags
-          method: get
-          cors: true
-          private: true
-  createVideo:
-    handler: gatways/videos/main.create
-    events:
-      - http:
-          path: /video/create
-          method: post
-          cors: true
-          private: true
-  paginationVideo:
-    handler: gatways/videos/main.pagination
-    events:
-      - http:
-          path: /video/pagination/{page}/session/{sessionId}
-          method: get
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              page: true
-              sessionId: true
-  likeVideo:
-    handler: gatways/videos/main.like
-    events:
-      - http:
-          path: /video/like/{videoId}
-          method: put
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              videoId: true
-  unlikeVideo:
-    handler: gatways/videos/main.unlike
-    events:
-      - http:
-          path: /video/unlike/{videoId}
-          method: put
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              videoId: true
-  likedBySubscriber:
-    handler: gatways/videos/main.likedBySubscriber
-    events:
-      - http:
-          path: /video/liked
-          method: get
-          cors: true
-          private: true
-          request:
-  findBestRankVideos:
-    handler: gatways/videos/main.findBestRankVideos
-    events:
-      - http:
-          path: /video/bestranking
-          method: get
-          cors: true
-          private: true
-  forgotPassword:
-    handler: gatways/subscriber/main.forgotPassword
-    events:
-      - http:
-          path: /subscriber/forgotpassword/document/{document}
-          method: get
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              document: true
-  updatePassword:
-    handler: gatways/subscriber/main.updatePassword
-    events:
-      - http:
-          path: /subscriber/updatepassword/document/{document}
-          method: post
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              document: true
-  loginSubscriber:
-    handler: gatways/subscriber/main.login
-    events:
-      - http:
-          path: /subscriber/login
-          method: post
-          cors: true
-          private: true
-  findSubscriberByDocument:
-    handler: gatways/subscriber/main.findByDocument
-    events:
-      - http:
-          path: /subscriber/find
-          method: get
-          cors: true
-          private: true
-  updateSubscriber:
-    handler: gatways/subscriber/main.update
-    events:
-      - http:
-          path: /subscriber/update
-          method: put
-          cors: true
-          private: true
-  deleteSubscriber:
-    handler: gatways/subscriber/main.delete
-    events:
-      - http:
-          path: /subscriber
-          method: delete
-          cors: true
-          private: true
-  countSubscribers:
-    handler: gatways/subscriber/main.countSubscribers
-    events:
-      - http:
-          path: /subscriber/count
-          method: get
-          cors: true
-          private: true
-  createSubscriber:
-    handler: gatways/subscriber/main.createSubscriber
-    events:
-      - http:
-          path: /subscriber/create
-          method: post
-          cors: true
-          private: true
-  createMeeting:
-    handler: gatways/meeting/main.createMeeting
-    events:
-      - http:
-          path: /meeting/create
-          method: post
-          cors: true
-          private: true
-  findMeetingsOfTheSubscriber:
-    handler: gatways/meeting/main.findMeetingsOfTheSubscriber
-    events:
-      - http:
-          path: /meeting/findall
-          method: get
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              subscriberId: true
-  deleteMeeting:
-    handler: gatways/meeting/main.deleteMeeting
-    events:
-      - http:
-          path: /meeting/delete/{meetingId}
-          method: delete
-          cors: true
-          private: true
-          request:
-          parameters:
-            paths:
-              meetingId: true
-  createTherapy:
-    handler: gatways/therapy/main.create
-    events:
-      - http:
-          path: /therapy/create
-          method: post
-          cors: true
-          private: true
-  findAllTherapy:
-    handler: gatways/therapy/main.findAll
-    events:
-      - http:
-          path: /therapy/findall
-          method: get
-          cors: true
-          private: true
-  support:
-    handler: gatways/profile/main.support
-    events:
-      - http:
-          path: /app/support
-          method: get
-          cors: true
-          private: true
-  privacity:
-    handler: gatways/profile/main.privacity
-    events:
-      - http:
-          path: /app/privacity
-          method: get
-          cors: true
-          private: true
-  uploadImage:
-    handler: gatways/profile/main.profileImage
-    events:
-      - http:
-          path: /profile/image
-          method: post
-          cors: true
-          private: true
-          parameters:
-            paths:
-              document: true
-  paymentAssignature:
-    handler: gatways/payment/main.payment
-    events:
-      - http:
-          path: /payment/assignature
-          method: post
-          cors: true
-          private: true
-  linkAddressBilling:
-    handler: gatways/subscriber/main.linkAddressBilling
-    events:
-      - http:
-          path: /subscriber/address/{document}
-          method: post
-          cors: true
-          private: true
-          parameters:
-            paths:
-              document: true
-        
-  linkBillingCard:
-    handler: gatways/subscriber/main.linkBillingCard
-    events:
-      - http:
-          path: /subscriber/card
-          method: post
-          cors: true
-          private: true
-  deleteBillingCard:
-    handler: gatways/subscriber/main.deleteCardByCustomer
-    events:
-      - http:
-          path: /subscriber/card/{cardId}
-          method: delete
-          cors: true
-          private: true
-          parameters:
-            paths:
-              cardId: true
-  paymentSignature:
-    handler: gatways/subscriber/main.paymentAssignature
-    events:
-      - http:
-          path: /subscriber/signature
-          method: post
-          cors: true
-          private: true
-  dayTexts:
-    handler: gatways/profile/main.dayTexts
-    events:
-      - http:
-          path: /phrasesday
-          method: get
-          cors: true
-          private: true
-  getSignature:
-    handler: gatways/subscriber/main.getSignature
-    events:
-      - http:
-          path: /signature
-          method: get
-          cors: true
-          private: true
-  cancelSignature:
-    handler: gatways/subscriber/main.cancelSignature
-    events:
-      - http:
-          path: /subscriber/signature
-          method: delete
-          cors: true
-          private: true
-  emailVerification:
-    handler: gatways/subscriber/main.emailVerification
-    events:
-      - http:
-          path: /subscriber/emailverification/{email}
-          method: get
-          cors: true
-          private: true
-  checkAccountExists:
-    handler: gatways/subscriber/main.checkAccountExists
-    events:
-      - http:
-          path: /subscriber/account
-          method: post
-          cors: true
-          private: true
-  updateBillingCard:
-    handler: gatways/subscriber/main.updateBillingCard
-    events:
-      - http:
-          path: /subscriber/card
-          method: patch
-          cors: true
-          private: true
-  updateBillingDate:
-    handler: gatways/subscriber/main.updateBillingDate
-    events:
-      - http:
-          path: /signature/date
-          method: put
-          cors: true
-          private: true
-  getCardsByCustomer:
-    handler: gatways/subscriber/main.getCardsByCustomer
-    events:
-      - http:
-          path: /signature/cards
-          method: get
-          cors: true
-          private: true
-
+  - ${file(gatways/subscriber/routes.yml)}
+  - ${file(gatways/videos/routes.yml)}
+  - ${file(gatways/sessions/routes.yml)}
+  - ${file(gatways/meeting/routes.yml)}
+  - ${file(gatways/therapy/routes.yml)}
+  - ${file(gatways/profile/routes.yml)}

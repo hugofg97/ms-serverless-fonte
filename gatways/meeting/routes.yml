@@ -1,0 +1,32 @@
+createMeeting:
+  handler: gatways/meeting/main.createMeeting
+  events:
+    - http:
+        path: /meeting/create
+        method: post
+        cors: true
+        private: true
+findMeetingsOfTheSubscriber:
+  handler: gatways/meeting/main.findMeetingsOfTheSubscriber
+  events:
+    - http:
+        path: /meeting/findall
+        method: get
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            subscriberId: true
+deleteMeeting:
+  handler: gatways/meeting/main.deleteMeeting
+  events:
+    - http:
+        path: /meeting/delete/{meetingId}
+        method: delete
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            meetingId: true

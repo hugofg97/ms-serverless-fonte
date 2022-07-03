@@ -1,0 +1,16 @@
+createTherapy:
+  handler: gatways/therapy/main.create
+  events:
+    - http:
+        path: /therapy/create
+        method: post
+        cors: true
+        private: true
+findAllTherapy:
+  handler: gatways/therapy/main.findAll
+  events:
+    - http:
+        path: /therapy/findall
+        method: get
+        cors: true
+        private: true

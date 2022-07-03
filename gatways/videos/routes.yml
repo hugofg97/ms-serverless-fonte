@@ -1,0 +1,62 @@
+createVideo:
+  handler: gatways/videos/main.create
+  events:
+    - http:
+        path: /video/create
+        method: post
+        cors: true
+        private: true
+paginationVideo:
+  handler: gatways/videos/main.pagination
+  events:
+    - http:
+        path: /video/pagination/{page}/session/{sessionId}
+        method: get
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            page: true
+            sessionId: true
+likeVideo:
+  handler: gatways/videos/main.like
+  events:
+    - http:
+        path: /video/like/{videoId}
+        method: put
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            videoId: true
+unlikeVideo:
+  handler: gatways/videos/main.unlike
+  events:
+    - http:
+        path: /video/unlike/{videoId}
+        method: put
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            videoId: true
+likedBySubscriber:
+  handler: gatways/videos/main.likedBySubscriber
+  events:
+    - http:
+        path: /video/liked
+        method: get
+        cors: true
+        private: true
+        request:
+findBestRankVideos:
+  handler: gatways/videos/main.findBestRankVideos
+  events:
+    - http:
+        path: /video/bestranking
+        method: get
+        cors: true
+        private: true

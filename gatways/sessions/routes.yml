@@ -1,0 +1,41 @@
+createSession:
+  handler: gatways/sessions/main.create
+  events:
+    - http:
+        path: /session/create
+        method: post
+        cors: true
+        private: true
+findAllSessions:
+  handler: gatways/sessions/main.findAllSession
+  events:
+    - http:
+        path: /session/{tag}/findall
+        method: get
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            tag: true
+paginationSessions:
+  handler: gatways/sessions/main.pagination
+  events:
+    - http:
+        path: /session/pagination/{tag}/{page}
+        method: get
+        cors: true
+        private: true
+        request:
+        parameters:
+          paths:
+            page: true
+            tag: true
+findAllTags:
+  handler: gatways/sessions/main.findAllTags
+  events:
+    - http:
+        path: /session/tags
+        method: get
+        cors: true
+        private: true
